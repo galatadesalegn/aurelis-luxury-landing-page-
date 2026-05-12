@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AURÉLIS — Deep Hydration. Radiant Glow.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet" />
+<style>
+  /* ═══════════════════════════════════════
+     THEME VARIABLES — DARK & LIGHT
+  ═══════════════════════════════════════ */
+  :root {
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --sans: 'Jost', sans-serif;
+    --gold: #c9a84c;
+    --gold-light: #e2c07a;
+    --gold-pale: #f0d99a;
+    --transition-theme: 0.55s cubic-bezier(.16,1,.3,1);
+  }
+
+  [data-theme="dark"] {
+    --black: #080807;
+    --deep: #0f0e0c;
+    --surface: #161410;
+    --bg: #080807;
+    --card-bg: rgba(22,20,16,0.75);
+    --card-border: rgba(201,168,76,.12);
+    --ivory: #f5f0e8;
+    --ivory-dim: #cdc8be;
+    --white: #fdfaf4;
+    --text-primary: #f5f0e8;
+    --text-secondary: #cdc8be;
+    --nav-bg: rgba(8,8,7,.97);
+    --nav-border: rgba(201,168,76,.15);
+    --section-overlay: rgba(15,14,12,0.7);
+    --footer-bg: rgba(8,8,7,0.85);
+    --scroll-bg: #080807;
+    --particle-color: rgba(201,168,76,.6);
+    --ingredient-border: rgba(201,168,76,.1);
+    --label-glow: rgba(240,217,154,0.06);
+    --theme-icon: '☾';
+    --shadow-bottle: 0 30px 80px rgba(201,168,76,0.22);
+    --shadow-card: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  [data-theme="light"] {
+    --black: #faf7f0;
+    --deep: #f0ebe0;
+    --surface: #e8e2d6;
+    --bg: #faf7f0;
+    --card-bg: rgba(255,253,248,0.85);
+    --card-border: rgba(160,120,40,.18);
+    --ivory: #2a2418;
+    --ivory-dim: #6b5e3e;
+    --white: #ffffff;
+    --text-primary: #1a1610;
+    --text-secondary: #5a4e32;
+    --nav-bg: rgba(250,247,240,.97);
+    --nav-border: rgba(160,120,40,.2);
+    --section-overlay: rgba(240,235,225,0.65);
+    --footer-bg: rgba(232,226,214,0.9);
+    --scroll-bg: #faf7f0;
+    --particle-color: rgba(160,120,40,.5);
+    --ingredient-border: rgba(160,120,40,.18);
+    --label-glow: rgba(160,120,40,0.08);
+    --theme-icon: '☀';
+    --shadow-bottle: 0 30px 80px rgba(201,168,76,0.35);
+    --shadow-card: 0 20px 60px rgba(180,150,80,0.15);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+    transition: background var(--transition-theme), color var(--transition-theme);
+  }
+
+  /* ── CUSTOM CURSOR ── */
+  .cursor { position: fixed; top: 0; left: 0; z-index: 9999; pointer-events: none; }
+  .cursor-dot { width: 6px; height: 6px; background: var(--gold-pale); border-radius: 50%; transform: translate(-50%,-50%); transition: transform .15s ease; mix-blend-mode: difference; }
+  .cursor-ring { width: 36px; height: 36px; border: 1px solid var(--gold); border-radius: 50%; transform: translate(-50%,-50%); transition: transform .35s cubic-bezier(.16,1,.3,1), width .3s, height .3s, border-color .3s; opacity: .7; mix-blend-mode: difference; }
+  body:has(a:hover) .cursor-ring, body:has(button:hover) .cursor-ring { width: 56px; height: 56px; border-color: var(--gold-pale); }
+
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--gold); }
+
+  /* ── MASTER BG ── */
+  #master-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; width: 100%; height: 100%; }
+  #cursor-canvas { position: fixed; inset: 0; z-index: 9990; pointer-events: none; mix-blend-mode: screen; }
+  #scene-label { position: fixed; bottom: 2rem; right: 2rem; z-index: 50; font-size: .5rem; letter-spacing: .3em; text-transform: uppercase; color: rgba(201,168,76,.4); pointer-events: none; transition: opacity .5s ease; }
+
+  /* ══════════════════════════════════
+     THEME TOGGLE BUTTON
+  ══════════════════════════════════ */
+  .theme-toggle {
+    position: fixed; top: 1.6rem; right: 5rem;
+    z-index: 200;
+    width: 56px; height: 28px;
+    background: transparent;
+    border: 1px solid rgba(201,168,76,.4);
+    border-radius: 14px;
+    cursor: none;
+    display: flex; align-items: center;
+    padding: 3px;
+    transition: border-color .3s, background .3s;
+    overflow: hidden;
+  }
+  .theme-toggle:hover { border-color: rgba(201,168,76,.8); }
+  .toggle-track {
+    position: relative; width: 100%; height: 100%;
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 0 5px;
+  }
+  .toggle-icon { font-size: 11px; line-height: 1; z-index: 1; transition: opacity .3s; user-select: none; }
+  .toggle-icon.moon { opacity: 1; }
+  .toggle-icon.sun { opacity: .4; }
+  [data-theme="light"] .toggle-icon.moon { opacity: .4; }
+  [data-theme="light"] .toggle-icon.sun { opacity: 1; }
+  .toggle-knob {
+    position: absolute;
+    width: 20px; height: 20px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-pale));
+    border-radius: 50%;
+    left: 3px;
+    transition: left .4s cubic-bezier(.34,1.56,.64,1), box-shadow .3s;
+    box-shadow: 0 0 8px rgba(201,168,76,0.5);
+  }
+  [data-theme="light"] .toggle-knob { left: calc(100% - 23px); box-shadow: 0 0 12px rgba(201,168,76,0.8); }
+
+  /* ── NAV ── */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 2rem 4rem; background: linear-gradient(to bottom, rgba(8,8,7,.95) 0%, transparent 100%); transition: background .4s, border-color .4s; }
+  [data-theme="light"] nav { background: linear-gradient(to bottom, rgba(250,247,240,.95) 0%, transparent 100%); }
+  nav.scrolled { background: var(--nav-bg); border-bottom: 1px solid var(--nav-border); }
+  .nav-logo { font-family: var(--serif); font-size: 1.5rem; font-weight: 400; letter-spacing: .35em; color: var(--gold-pale); text-decoration: none; transition: color var(--transition-theme); }
+  [data-theme="light"] .nav-logo { color: var(--gold); }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a { font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--text-secondary); text-decoration: none; transition: color .3s; position: relative; }
+  .nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; right: 0; height: 1px; background: var(--gold); transform: scaleX(0); transform-origin: right; transition: transform .35s cubic-bezier(.16,1,.3,1); }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-links a:hover::after { transform: scaleX(1); transform-origin: left; }
+  .nav-cta { font-size: .65rem; letter-spacing: .2em; text-transform: uppercase; color: var(--bg); background: var(--gold); border: none; padding: .65rem 1.8rem; cursor: none; transition: background .3s, transform .2s; font-family: var(--sans); }
+  .nav-cta:hover { background: var(--gold-pale); transform: translateY(-1px); }
+
+  section { position: relative; overflow: hidden; z-index: 1; }
+  .section-label { font-size: .6rem; letter-spacing: .4em; text-transform: uppercase; color: var(--gold); display: block; margin-bottom: 1.5rem; }
+
+  /* ════════════════════════════════════════
+     HERO — HANGING BOTTLE WITH LIGHT EFFECT
+  ════════════════════════════════════════ */
+  .hero { position: relative; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; z-index: 1; }
+  .hero-bg { position: absolute; inset: 0; }
+  .hero-line { position: absolute; background: linear-gradient(to bottom, transparent, var(--gold), transparent); width: 1px; opacity: .15; animation: floatLine 8s ease-in-out infinite; }
+  .hero-line:nth-child(1) { left: 15%; height: 35vh; top: 15%; animation-delay: 0s; }
+  .hero-line:nth-child(2) { right: 15%; height: 25vh; top: 30%; animation-delay: -3s; }
+  .hero-line:nth-child(3) { left: 50%; height: 20vh; top: 5%; animation-delay: -5s; }
+  @keyframes floatLine { 0%,100%{ transform: translateY(0) scaleY(1); opacity: .15; } 50%{ transform: translateY(20px) scaleY(1.1); opacity: .25; } }
+
+  .hero-content { position: relative; z-index: 2; text-align: center; display: flex; flex-direction: column; align-items: center; animation: heroReveal 1.6s cubic-bezier(.16,1,.3,1) both; }
+  @keyframes heroReveal { from{ opacity:0; transform:translateY(40px); } to{ opacity:1; transform:translateY(0); } }
+  .hero-eyebrow { font-size: .65rem; letter-spacing: .4em; text-transform: uppercase; color: var(--gold); margin-bottom: 2rem; animation: heroReveal 1.6s .2s cubic-bezier(.16,1,.3,1) both; }
+
+  /* ── HANGING BOTTLE SYSTEM ── */
+  .hanging-system {
+    position: relative;
+    width: 220px;
+    margin: 0 auto 2.5rem;
+    animation: heroReveal 2s .1s cubic-bezier(.16,1,.3,1) both;
+    cursor: none;
+  }
+
+  /* The hanging wire/string from top */
+  .hang-wire {
+    position: absolute;
+    left: 50%;
+    top: -60px;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 70px;
+    background: linear-gradient(to bottom, transparent, rgba(201,168,76,0.4), rgba(201,168,76,0.7));
+    z-index: 10;
+    transform-origin: top center;
+    transition: transform 0.3s ease;
+  }
+  /* Wire attachment ring */
+  .hang-ring {
+    position: absolute;
+    left: 50%;
+    top: -2px;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    border: 1.5px solid rgba(201,168,76,0.8);
+    border-radius: 50%;
+    z-index: 11;
+  }
+  .hang-hook {
+    position: absolute;
+    left: 50%;
+    top: -68px;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 12px;
+    border: 1.5px solid rgba(201,168,76,0.5);
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    z-index: 11;
+  }
+
+  /* Light cone that appears on hover */
+  .bottle-light-cone {
+    position: absolute;
+    bottom: -120px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 0px solid transparent;
+    border-right: 0px solid transparent;
+    border-top: 0px solid transparent;
+    pointer-events: none;
+    z-index: 0;
+    transition: all 0.5s cubic-bezier(.16,1,.3,1);
+    opacity: 0;
+  }
+
+  /* SVG-based light cone overlay */
+  .bottle-light-svg {
+    position: absolute;
+    bottom: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 400px;
+    height: 300px;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.5s cubic-bezier(.16,1,.3,1);
+  }
+
+  /* Ambient glow around bottle */
+  .bottle-ambient {
+    position: absolute;
+    inset: -50px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(201,168,76,0.0) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    transition: background 0.5s ease;
+  }
+
+  .bottle-wrap {
+    position: relative;
+    width: 180px;
+    height: 320px;
+    margin: 0 auto;
+    animation: bottleFloat 5s ease-in-out infinite 2.1s;
+    will-change: transform;
+    cursor: none;
+    z-index: 5;
+    filter: drop-shadow(0 20px 40px rgba(201,168,76,0.15));
+    transition: filter 0.5s ease, transform 0.3s ease;
+  }
+
+  /* HOVER STATE — the magic */
+  .hanging-system:hover .bottle-wrap {
+    filter:
+      drop-shadow(0 0 30px rgba(255, 235, 160, 0.9))
+      drop-shadow(0 0 60px rgba(201, 168, 76, 0.7))
+      drop-shadow(0 0 100px rgba(201, 168, 76, 0.5))
+      drop-shadow(0 40px 80px rgba(201, 168, 76, 0.3));
+    animation-play-state: paused;
+  }
+
+  .hanging-system:hover .bottle-ambient {
+    background: radial-gradient(ellipse at 50% 40%,
+      rgba(255,240,150,0.25) 0%,
+      rgba(201,168,76,0.15) 30%,
+      rgba(201,168,76,0.05) 60%,
+      transparent 80%);
+  }
+
+  .hanging-system:hover .bottle-light-svg { opacity: 1; }
+  .hanging-system:hover .hang-wire {
+    background: linear-gradient(to bottom, transparent, rgba(255,220,100,0.6), rgba(255,220,100,0.9));
+    box-shadow: 0 0 8px rgba(255,220,100,0.5);
+  }
+  .hanging-system:hover .hang-ring {
+    border-color: rgba(255,220,100,0.9);
+    box-shadow: 0 0 6px rgba(255,220,100,0.7);
+  }
+
+  /* Bounce on hover entry */
+  .hanging-system:hover .bottle-wrap {
+    transform: translateY(-6px);
+  }
+
+  /* The filament glow at cap */
+  .bottle-filament {
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(255,230,100,0);
+    pointer-events: none;
+    z-index: 20;
+    transition: background 0.4s ease, box-shadow 0.4s ease;
+  }
+  .hanging-system:hover .bottle-filament {
+    background: rgba(255,240,150,0.9);
+    box-shadow:
+      0 0 8px 4px rgba(255,230,100,0.8),
+      0 0 20px 10px rgba(201,168,76,0.5),
+      0 0 40px 20px rgba(201,168,76,0.2);
+  }
+
+  /* Swing animation on page load */
+  @keyframes bottleFloat { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-14px); } }
+  @keyframes bottleSwingIn {
+    0% { transform: rotate(-8deg); }
+    30% { transform: rotate(6deg); }
+    55% { transform: rotate(-3deg); }
+    75% { transform: rotate(1.5deg); }
+    90% { transform: rotate(-0.5deg); }
+    100% { transform: rotate(0deg); }
+  }
+
+  .bottle-swing-wrapper {
+    position: relative;
+    width: 180px;
+    height: 320px;
+    transform-origin: top center;
+    animation: bottleSwingIn 2s 0.5s cubic-bezier(.16,1,.3,1) both;
+  }
+
+  @keyframes bottleFloat { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-14px); } }
+
+  .hero-brand { font-family: var(--serif); font-size: clamp(3.5rem, 8vw, 7rem); font-weight: 300; letter-spacing: .18em; color: var(--text-primary); line-height: 1; margin-bottom: .5rem; animation: heroReveal 1.8s .35s cubic-bezier(.16,1,.3,1) both; }
+  .hero-brand span { color: var(--gold); font-style: italic; }
+  .hero-tagline { font-family: var(--serif); font-size: clamp(1rem, 2vw, 1.4rem); font-weight: 300; font-style: italic; color: var(--text-secondary); letter-spacing: .1em; margin-bottom: 3rem; animation: heroReveal 1.8s .5s cubic-bezier(.16,1,.3,1) both; }
+  .hero-divider { width: 60px; height: 1px; background: linear-gradient(to right, transparent, var(--gold), transparent); margin: 0 auto 3rem; animation: heroReveal 1.8s .55s cubic-bezier(.16,1,.3,1) both; }
+  .hero-ctas { display: flex; gap: 1.2rem; animation: heroReveal 1.8s .7s cubic-bezier(.16,1,.3,1) both; }
+
+  .btn-primary { font-family: var(--sans); font-size: .68rem; font-weight: 400; letter-spacing: .25em; text-transform: uppercase; color: #080807; background: var(--gold); border: none; padding: 1rem 2.8rem; cursor: none; text-decoration: none; display: inline-block; position: relative; overflow: hidden; transition: color .4s ease, background .4s ease, box-shadow .4s ease, transform .3s ease; }
+  .btn-primary:hover { background: var(--gold-pale); transform: translateY(-3px); box-shadow: 0 16px 48px rgba(201,168,76,.25); }
+  .btn-ghost { font-family: var(--sans); font-size: .68rem; font-weight: 300; letter-spacing: .25em; text-transform: uppercase; color: var(--gold); background: transparent; border: 1px solid rgba(201,168,76,.45); padding: 1rem 2.8rem; cursor: none; text-decoration: none; display: inline-block; transition: border-color .4s, color .4s, transform .3s, box-shadow .4s; }
+  .btn-ghost:hover { border-color: rgba(201,168,76,.7); color: var(--gold-pale); transform: translateY(-3px); box-shadow: 0 12px 36px rgba(201,168,76,.12); }
+  .btn-reveal { opacity: 0; transform: translateY(16px); transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+  .btn-reveal.visible { opacity: 1; transform: translateY(0); }
+
+  .hero-scroll { position: absolute; bottom: 3rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: .8rem; animation: heroReveal 2s 1.2s cubic-bezier(.16,1,.3,1) both; }
+  .hero-scroll span { font-size: .55rem; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); }
+  .scroll-line { width: 1px; height: 50px; background: linear-gradient(to bottom, var(--gold), transparent); animation: scrollDrop 2.5s ease-in-out infinite; }
+  @keyframes scrollDrop { 0%{ transform:scaleY(0); transform-origin:top; opacity:1; } 50%{ transform:scaleY(1); transform-origin:top; opacity:1; } 51%{ transform:scaleY(1); transform-origin:bottom; } 100%{ transform:scaleY(0); transform-origin:bottom; opacity:0; } }
+
+  /* ── BRAND STORY ── */
+  .story { padding: 10rem 4rem; display: grid; grid-template-columns: 1fr 1fr; gap: 8rem; align-items: center; max-width: 1300px; margin: 0 auto; }
+  .story-visual { position: relative; }
+  .story-img-wrap { position: relative; aspect-ratio: 3/4; background: linear-gradient(135deg, var(--surface) 0%, rgba(200,180,130,0.1) 100%); overflow: hidden; transition: background var(--transition-theme); }
+  [data-theme="light"] .story-img-wrap { background: linear-gradient(135deg, #ede6d8 0%, #e0d5c0 100%); }
+  .story-img-wrap::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 40% 60% at 70% 30%, rgba(201,168,76,.12) 0%, transparent 60%); z-index: 1; }
+  .story-img-frame { position: absolute; inset: -20px; border: 1px solid rgba(201,168,76,.2); transform: translate(20px, 20px); }
+  .story-img-number { position: absolute; bottom: -2rem; right: -2rem; font-family: var(--serif); font-size: 8rem; font-weight: 300; color: var(--label-glow); line-height: 1; z-index: -1; }
+  .story-heading { font-family: var(--serif); font-size: clamp(2.2rem, 3.5vw, 3.5rem); font-weight: 300; line-height: 1.2; margin-bottom: 2rem; color: var(--text-primary); }
+  .story-heading em { font-style: italic; color: var(--gold); }
+  .story-body { font-size: .9rem; line-height: 2; color: var(--text-secondary); margin-bottom: 2rem; }
+  .story-stat-row { display: flex; gap: 3rem; margin-top: 3rem; padding-top: 3rem; border-top: 1px solid rgba(201,168,76,.15); }
+  .story-stat-num { font-family: var(--serif); font-size: 2.5rem; font-weight: 300; color: var(--gold); letter-spacing: .05em; display: block; }
+  .story-stat-label { font-size: .65rem; letter-spacing: .2em; text-transform: uppercase; color: var(--text-secondary); }
+
+  /* ── PRODUCT SECTION ── */
+  .product-section { padding: 8rem 4rem; background: var(--section-overlay); border-top: 1px solid rgba(201,168,76,.08); border-bottom: 1px solid rgba(201,168,76,.08); transition: background var(--transition-theme); }
+  .product-inner { max-width: 1300px; margin: 0 auto; }
+  .product-header { text-align: center; margin-bottom: 5rem; }
+  .product-header h2 { font-family: var(--serif); font-size: clamp(2.5rem, 4vw, 4rem); font-weight: 300; color: var(--text-primary); letter-spacing: .05em; }
+  .product-card { display: grid; grid-template-columns: 1fr 1.1fr; gap: 6rem; align-items: center; }
+  .product-bottle-area { position: relative; display: flex; justify-content: center; align-items: center; aspect-ratio: 1; max-width: 440px; margin: 0 auto; }
+  .product-ring { position: absolute; border-radius: 50%; border: 1px solid rgba(201,168,76,.12); animation: ringRotate 20s linear infinite; }
+  .product-ring:nth-child(1) { width: 85%; height: 85%; }
+  .product-ring:nth-child(2) { width: 100%; height: 100%; animation-direction: reverse; animation-duration: 30s; }
+  @keyframes ringRotate { to { transform: rotate(360deg); } }
+  .product-ring-dot { position: absolute; width: 4px; height: 4px; background: var(--gold); border-radius: 50%; top: -2px; left: calc(50% - 2px); }
+  .product-name { font-family: var(--serif); font-size: clamp(1.8rem, 2.5vw, 2.8rem); font-weight: 300; color: var(--text-primary); margin-bottom: .5rem; }
+  .product-subtitle { font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); margin-bottom: 2rem; }
+  .product-desc { font-size: .9rem; line-height: 1.9; color: var(--text-secondary); margin-bottom: 2.5rem; max-width: 440px; }
+  .product-meta { display: flex; gap: 2rem; margin-bottom: 2.5rem; padding: 1.5rem 0; border-top: 1px solid rgba(201,168,76,.12); border-bottom: 1px solid rgba(201,168,76,.12); }
+  .meta-item { display: flex; flex-direction: column; gap: .3rem; }
+  .meta-key { font-size: .58rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
+  .meta-val { font-size: .82rem; color: var(--text-primary); }
+  .product-price { font-family: var(--serif); font-size: 1.8rem; font-weight: 300; color: var(--gold); margin-bottom: 2rem; }
+  .product-price span { font-size: .7rem; font-family: var(--sans); font-weight: 300; color: var(--text-secondary); vertical-align: middle; }
+
+  /* ── BENEFITS ── */
+  .benefits-section { padding: 10rem 4rem; }
+  .benefits-inner { max-width: 1300px; margin: 0 auto; }
+  .benefits-header { text-align: center; margin-bottom: 6rem; }
+  .benefits-header h2 { font-family: var(--serif); font-size: clamp(2.5rem, 4vw, 4rem); font-weight: 300; color: var(--text-primary); }
+  .benefits-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+  .benefit-card { background: var(--card-bg); padding: 3.5rem 3rem; position: relative; overflow: hidden; transition: background .4s, transform .4s, box-shadow .4s; border: 1px solid transparent; box-shadow: var(--shadow-card); }
+  [data-theme="light"] .benefit-card { border-color: rgba(201,168,76,.08); }
+  .benefit-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(to right, transparent, var(--gold), transparent); transform: scaleX(0); transition: transform .5s cubic-bezier(.16,1,.3,1); z-index: 5; }
+  .benefit-card:hover { transform: translateY(-4px); box-shadow: 0 24px 60px rgba(201,168,76,0.12); }
+  .benefit-card:hover::before { transform: scaleX(1); }
+  .benefit-icon { width: 44px; height: 44px; margin-bottom: 2rem; border: 1px solid rgba(201,168,76,.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .benefit-icon svg { width: 20px; height: 20px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
+  .benefit-num { position: absolute; top: 2rem; right: 2rem; font-family: var(--serif); font-size: 4rem; font-weight: 300; color: var(--label-glow); line-height: 1; }
+  .benefit-title { font-family: var(--serif); font-size: 1.5rem; font-weight: 300; color: var(--text-primary); margin-bottom: 1rem; }
+  .benefit-text { font-size: .85rem; line-height: 1.9; color: var(--text-secondary); }
+
+  /* ── INGREDIENTS ── */
+  .ingredients-section { padding: 10rem 4rem; background: var(--section-overlay); border-top: 1px solid rgba(201,168,76,.08); transition: background var(--transition-theme); }
+  .ingredients-inner { max-width: 1300px; margin: 0 auto; }
+  .ingredients-header { margin-bottom: 5rem; }
+  .ingredients-header h2 { font-family: var(--serif); font-size: clamp(2.5rem, 4vw, 4rem); font-weight: 300; color: var(--text-primary); max-width: 500px; line-height: 1.2; }
+  .ingredients-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: start; }
+  .ingredient-row { display: grid; grid-template-columns: 2rem 1fr auto; align-items: start; gap: 1.5rem; padding: 2rem 0; border-bottom: 1px solid var(--ingredient-border); cursor: none; transition: padding-left .3s; position: relative; }
+  .ingredient-row::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--gold); transform: scaleY(0); transition: transform .3s; }
+  .ingredient-row:hover::before { transform: scaleY(1); }
+  .ingredient-row:hover { padding-left: 1rem; }
+  .ingredient-idx { font-family: var(--serif); font-size: .85rem; color: var(--gold); padding-top: .2rem; }
+  .ingredient-name { font-family: var(--serif); font-size: 1.1rem; color: var(--text-primary); margin-bottom: .3rem; }
+  .ingredient-desc { font-size: .78rem; color: var(--text-secondary); line-height: 1.7; }
+  .ingredient-badge { font-size: .55rem; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); border: 1px solid rgba(201,168,76,.3); padding: .3rem .7rem; white-space: nowrap; align-self: start; }
+  .ingredients-science { position: sticky; top: 8rem; background: var(--card-bg); padding: 3rem; border: 1px solid var(--card-border); transition: background var(--transition-theme), border-color var(--transition-theme); box-shadow: var(--shadow-card); }
+  .science-title { font-family: var(--serif); font-size: 1.3rem; color: var(--text-primary); margin-bottom: 1.5rem; font-weight: 300; }
+  .science-text { font-size: .82rem; line-height: 1.9; color: var(--text-secondary); margin-bottom: 2rem; }
+  .science-bar-label { font-size: .6rem; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); margin-bottom: .6rem; }
+  .science-bar-track { height: 2px; background: rgba(201,168,76,.1); margin-bottom: 1.8rem; overflow: hidden; }
+  .science-bar-fill { height: 100%; background: linear-gradient(to right, var(--gold), var(--gold-light)); animation: barFill 2s cubic-bezier(.16,1,.3,1) both; }
+  @keyframes barFill { from { width: 0 !important; } }
+
+  /* ── TESTIMONIALS ── */
+  .testimonials-section { padding: 10rem 4rem; }
+  .testimonials-inner { max-width: 1300px; margin: 0 auto; }
+  .testimonials-header { text-align: center; margin-bottom: 5rem; }
+  .testimonials-header h2 { font-family: var(--serif); font-size: clamp(2.5rem, 4vw, 4rem); font-weight: 300; color: var(--text-primary); }
+  .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+  .testimonial-card { padding: 3rem; border: 1px solid var(--card-border); position: relative; transition: border-color .4s, transform .4s, box-shadow .4s; overflow: hidden; background: var(--card-bg); box-shadow: var(--shadow-card); }
+  .testimonial-card:hover { border-color: rgba(201,168,76,.35); transform: translateY(-4px); box-shadow: 0 24px 60px rgba(201,168,76,0.12); }
+  .testimonial-quote { font-family: var(--serif); font-size: 3rem; color: var(--gold); opacity: .3; line-height: 1; margin-bottom: 1.5rem; }
+  .testimonial-text { font-family: var(--serif); font-size: 1.05rem; font-weight: 300; font-style: italic; line-height: 1.8; color: var(--text-primary); margin-bottom: 2rem; }
+  .testimonial-stars { color: var(--gold); font-size: .8rem; letter-spacing: .2em; margin-bottom: 1.5rem; }
+  .testimonial-author { display: flex; align-items: center; gap: 1rem; }
+  .author-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--surface), rgba(201,168,76,.2)); border: 1px solid rgba(201,168,76,.2); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: .9rem; color: var(--gold); }
+  .author-name { font-size: .78rem; color: var(--text-primary); display: block; margin-bottom: .2rem; }
+  .author-loc { font-size: .65rem; letter-spacing: .1em; color: var(--text-secondary); }
+
+  /* ── FINAL CTA ── */
+  .cta-section { padding: 12rem 4rem; background: var(--section-overlay); border-top: 1px solid rgba(201,168,76,.08); text-align: center; transition: background var(--transition-theme); }
+  .cta-section h2 { font-family: var(--serif); font-size: clamp(3rem, 5vw, 5.5rem); font-weight: 300; color: var(--text-primary); margin-bottom: 1.5rem; line-height: 1.1; }
+  .cta-section h2 em { font-style: italic; color: var(--gold); }
+  .cta-section p { font-size: .9rem; color: var(--text-secondary); margin-bottom: 3rem; max-width: 420px; margin-left: auto; margin-right: auto; line-height: 1.9; }
+  .email-form { display: flex; gap: 0; max-width: 440px; margin: 0 auto 2rem; border: 1px solid rgba(201,168,76,.3); background: var(--card-bg); }
+  .email-form input { flex: 1; background: transparent; border: none; outline: none; padding: 1.1rem 1.5rem; font-family: var(--sans); font-size: .8rem; font-weight: 300; color: var(--text-primary); letter-spacing: .05em; }
+  .email-form input::placeholder { color: var(--text-secondary); opacity: .5; }
+  .email-form button { background: var(--gold); border: none; padding: 1.1rem 2rem; font-family: var(--sans); font-size: .65rem; font-weight: 400; letter-spacing: .2em; text-transform: uppercase; color: #080807; cursor: none; transition: background .3s; white-space: nowrap; }
+  .email-form button:hover { background: var(--gold-pale); }
+  .cta-note { font-size: .65rem; color: var(--text-secondary); opacity: .5; letter-spacing: .05em; }
+
+  /* ── FOOTER ── */
+  footer { padding: 4rem 4rem 3rem; border-top: 1px solid rgba(201,168,76,.12); background: var(--footer-bg); position: relative; z-index: 1; transition: background var(--transition-theme); }
+  .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 4rem; margin-bottom: 4rem; }
+  .footer-brand-name { font-family: var(--serif); font-size: 1.6rem; font-weight: 300; letter-spacing: .3em; color: var(--gold); margin-bottom: 1rem; display: block; }
+  .footer-brand-tagline { font-size: .75rem; font-style: italic; font-family: var(--serif); color: var(--text-secondary); line-height: 1.7; }
+  .footer-col-title { font-size: .6rem; letter-spacing: .25em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.5rem; display: block; }
+  .footer-links { list-style: none; display: flex; flex-direction: column; gap: .8rem; }
+  .footer-links a { font-size: .8rem; color: var(--text-secondary); text-decoration: none; transition: color .3s; letter-spacing: .05em; }
+  .footer-links a:hover { color: var(--gold); }
+  .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 2rem; border-top: 1px solid rgba(201,168,76,.08); }
+  .footer-copy { font-size: .65rem; color: var(--text-secondary); opacity: .5; letter-spacing: .05em; }
+  .footer-legal { display: flex; gap: 2rem; }
+  .footer-legal a { font-size: .65rem; color: var(--text-secondary); opacity: .5; text-decoration: none; letter-spacing: .05em; transition: opacity .3s; }
+  .footer-legal a:hover { opacity: 1; }
+
+  /* ── FADE IN ── */
+  .fade-in { opacity: 0; transform: translateY(30px); transition: opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1); }
+  .fade-in.visible { opacity: 1; transform: none; }
+  .fade-in-delay-1 { transition-delay: .1s; }
+  .fade-in-delay-2 { transition-delay: .2s; }
+  .fade-in-delay-3 { transition-delay: .3s; }
+  .fade-in-delay-4 { transition-delay: .4s; }
+
+  /* ── PARTICLES ── */
+  #particles-global { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .particle { position: absolute; border-radius: 50%; background: radial-gradient(circle, var(--particle-color) 0%, transparent 70%); animation: particleDrift linear infinite; will-change: transform; }
+  @keyframes particleDrift { 0% { transform: translateY(100vh); opacity: 0; } 10% { opacity: 1; } 90% { opacity: .4; } 100% { transform: translateY(-20vh); opacity: 0; } }
+
+  /* ── LIGHT MODE SPECIFIC: warm background paper texture ── */
+  [data-theme="light"] body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 20%, rgba(255,245,220,0.5) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 80% at 80% 80%, rgba(240,225,190,0.4) 0%, transparent 50%),
+      radial-gradient(ellipse 100% 100% at 50% 50%, rgba(250,245,235,0.3) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  @media (max-width: 900px) {
+    nav { padding: 1.5rem 2rem; }
+    .nav-links { display: none; }
+    .story { grid-template-columns: 1fr; gap: 4rem; padding: 6rem 2rem; }
+    .product-card { grid-template-columns: 1fr; }
+    .benefits-grid { grid-template-columns: 1fr; }
+    .ingredients-layout { grid-template-columns: 1fr; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .footer-top { grid-template-columns: 1fr 1fr; }
+    .hero-ctas { flex-direction: column; width: 100%; padding: 0 2rem; }
+    .theme-toggle { right: 4rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor">
+  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+</div>
+
+<!-- THEME TOGGLE -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+  <div class="toggle-track">
+    <span class="toggle-icon moon">☾</span>
+    <span class="toggle-icon sun">☀</span>
+    <div class="toggle-knob" id="toggleKnob"></div>
+  </div>
+</button>
+
+<canvas id="master-bg"></canvas>
+<canvas id="cursor-canvas"></canvas>
+<div id="particles-global" aria-hidden="true"></div>
+<div id="scene-label"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">AURÉLIS</a>
+  <ul class="nav-links">
+    <li><a href="#story">Our Story</a></li>
+    <li><a href="#product">Products</a></li>
+    <li><a href="#ingredients">Science</a></li>
+    <li><a href="#testimonials">Reviews</a></li>
+  </ul>
+  <button class="nav-cta">Shop Now</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg">
+    <div class="hero-line"></div>
+    <div class="hero-line"></div>
+    <div class="hero-line"></div>
+  </div>
+  <div class="hero-content">
+    <span class="hero-eyebrow">— Luxe Skincare Atelier —</span>
+
+    <!-- HANGING BOTTLE SYSTEM -->
+    <div class="hanging-system" id="hangingSystem">
+      <!-- Hook at ceiling -->
+      <div class="hang-hook"></div>
+      <!-- Wire/string -->
+      <div class="hang-wire" id="hangWire"></div>
+      <!-- Small ring connector -->
+      <div class="hang-ring"></div>
+      <!-- Filament glow at cap -->
+      <div class="bottle-filament" id="bottleFilament"></div>
+
+      <!-- Ambient glow layer -->
+      <div class="bottle-ambient" id="bottleAmbient"></div>
+
+      <!-- Light cone SVG — appears on hover -->
+      <svg class="bottle-light-svg" id="bottleLightSvg" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="coneGrad" cx="50%" cy="0%" r="100%" fx="50%" fy="0%">
+            <stop offset="0%" stop-color="rgba(255,240,150,0.25)"/>
+            <stop offset="40%" stop-color="rgba(255,220,100,0.10)"/>
+            <stop offset="100%" stop-color="rgba(201,168,76,0)"/>
+          </radialGradient>
+          <filter id="coneBlur">
+            <feGaussianBlur stdDeviation="8"/>
+          </filter>
+        </defs>
+        <!-- Main light cone -->
+        <polygon points="200,0 50,300 350,300" fill="url(#coneGrad)" filter="url(#coneBlur)" opacity="0.9"/>
+        <!-- Bright center streak -->
+        <polygon points="200,0 170,300 230,300" fill="rgba(255,250,200,0.15)" filter="url(#coneBlur)"/>
+        <!-- Floor light pool -->
+        <ellipse cx="200" cy="290" rx="130" ry="20" fill="rgba(255,230,120,0.12)" filter="url(#coneBlur)"/>
+      </svg>
+
+      <!-- Bottle (swings in, then floats) -->
+      <div class="bottle-swing-wrapper">
+        <div class="bottle-wrap" id="heroBottle">
+          <svg viewBox="0 0 180 320" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
+            <rect x="80" y="8" width="20" height="8" rx="3" fill="url(#capGrad)"/>
+            <rect x="85" y="2" width="10" height="10" rx="2" fill="url(#capGrad)"/>
+            <rect x="78" y="16" width="24" height="30" rx="4" fill="url(#neckGrad)"/>
+            <path d="M60 46 Q68 46 78 46 L102 46 Q112 46 120 46 L120 52 Q110 56 90 56 Q70 56 60 52 Z" fill="url(#bodyGrad)"/>
+            <rect x="54" y="52" width="72" height="220" rx="8" fill="url(#bodyGrad)"/>
+            <rect x="58" y="60" width="8" height="200" rx="4" fill="url(#highlightL)" opacity="0.4"/>
+            <rect x="114" y="60" width="6" height="200" rx="3" fill="url(#highlightR)" opacity="0.2"/>
+            <rect x="62" y="100" width="56" height="130" rx="3" fill="url(#labelGrad)" opacity="0.85"/>
+            <line x1="65" y1="104" x2="115" y2="104" stroke="#c9a84c" stroke-width="0.5" opacity="0.6"/>
+            <line x1="65" y1="226" x2="115" y2="226" stroke="#c9a84c" stroke-width="0.5" opacity="0.6"/>
+            <text x="90" y="128" text-anchor="middle" font-family="Georgia, serif" font-size="7" fill="#c9a84c" letter-spacing="3" opacity="0.9">AURÉLIS</text>
+            <line x1="72" y1="134" x2="108" y2="134" stroke="#c9a84c" stroke-width="0.3" opacity="0.5"/>
+            <text x="90" y="148" text-anchor="middle" font-family="Georgia, serif" font-size="5" fill="#f0d99a" letter-spacing="1" opacity="0.7" font-style="italic">Radiance Serum</text>
+            <text x="90" y="165" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#c9a84c" opacity="0.25">✦</text>
+            <text x="90" y="210" text-anchor="middle" font-family="Arial" font-size="5" fill="#cdc8be" letter-spacing="1" opacity="0.5">30 mL · 1 FL. OZ.</text>
+            <ellipse cx="90" cy="272" rx="34" ry="4" fill="url(#bodyGrad)" opacity="0.3"/>
+            <rect x="54" y="268" width="72" height="4" rx="2" fill="url(#capGrad)" opacity="0.6"/>
+            <defs>
+              <linearGradient id="capGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#8a6d2e"/><stop offset="40%" stop-color="#c9a84c"/><stop offset="70%" stop-color="#e2c07a"/><stop offset="100%" stop-color="#9a7a35"/></linearGradient>
+              <linearGradient id="neckGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1a1812"/><stop offset="30%" stop-color="#252118"/><stop offset="70%" stop-color="#2a2419"/><stop offset="100%" stop-color="#1a1812"/></linearGradient>
+              <linearGradient id="bodyGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#0d0c0a"/><stop offset="15%" stop-color="#1e1b13"/><stop offset="50%" stop-color="#252219"/><stop offset="85%" stop-color="#1a1712"/><stop offset="100%" stop-color="#0d0c0a"/></linearGradient>
+              <linearGradient id="labelGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1e1b13"/><stop offset="100%" stop-color="#16140e"/></linearGradient>
+              <linearGradient id="highlightL" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#f0d99a"/><stop offset="100%" stop-color="transparent"/></linearGradient>
+              <linearGradient id="highlightR" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="transparent"/><stop offset="100%" stop-color="#c9a84c"/></linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <h1 class="hero-brand">AUR<span>É</span>LIS</h1>
+    <p class="hero-tagline">"Deep Hydration. Radiant Glow."</p>
+    <div class="hero-divider"></div>
+    <div class="hero-ctas btn-reveal">
+      <a href="#product" class="btn-primary">Shop Now</a>
+      <a href="#product" class="btn-ghost">Explore Collection</a>
+    </div>
+  </div>
+  <div class="hero-scroll"><span>Scroll</span><div class="scroll-line"></div></div>
+</section>
+
+<!-- BRAND STORY -->
+<section id="story">
+  <div class="story">
+    <div class="story-visual fade-in">
+      <div class="story-img-wrap">
+        <svg viewBox="0 0 400 530" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;position:absolute;inset:0;z-index:1;">
+          <defs><radialGradient id="bg1" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#2a2419" stop-opacity="1"/><stop offset="100%" stop-color="#0f0e0c" stop-opacity="1"/></radialGradient></defs>
+          <rect width="400" height="530" fill="url(#bg1)"/>
+          <ellipse cx="200" cy="200" rx="160" ry="200" fill="#c9a84c" opacity="0.04"/>
+          <path d="M200 400 Q180 300 160 200 Q140 100 200 50" stroke="#c9a84c" stroke-width="0.8" opacity="0.3" fill="none"/>
+          <path d="M200 400 Q220 300 240 200 Q260 100 200 50" stroke="#c9a84c" stroke-width="0.8" opacity="0.2" fill="none"/>
+          <circle cx="200" cy="50" r="8" fill="#c9a84c" opacity="0.15"/>
+          <text x="200" y="490" text-anchor="middle" font-family="Georgia, serif" font-size="11" fill="#c9a84c" letter-spacing="6" opacity="0.4">AURÉLIS</text>
+        </svg>
+      </div>
+      <div class="story-img-frame"></div>
+      <div class="story-img-number">01</div>
+    </div>
+    <div class="story-text">
+      <span class="section-label fade-in">Our Philosophy</span>
+      <h2 class="story-heading fade-in fade-in-delay-1">Where <em>luxury</em> meets the science of <em>radiance</em></h2>
+      <p class="story-body fade-in fade-in-delay-2">Born from a vision to redefine what skincare can achieve, AURÉLIS was created for those who understand that true beauty is a ritual. We believe your skin deserves nothing but the most exquisite formulations — crafted at the intersection of nature and innovation.</p>
+      <p class="story-body fade-in fade-in-delay-3">Each drop of our Radiance Serum carries the culmination of decades of dermatological research, rare botanical extracts, and artisan craftsmanship. This is not simply skincare. This is transformation.</p>
+      <div class="story-stat-row fade-in fade-in-delay-4">
+        <div class="story-stat"><span class="story-stat-num">94%</span><span class="story-stat-label">See visible glow in 7 days</span></div>
+        <div class="story-stat"><span class="story-stat-num">12+</span><span class="story-stat-label">Rare active ingredients</span></div>
+        <div class="story-stat"><span class="story-stat-num">0</span><span class="story-stat-label">Harsh chemicals</span></div>
+      </div>
+      <div class="btn-reveal" style="margin-top:2.5rem;"><a href="#product" class="btn-ghost">Discover the Formula</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED PRODUCT -->
+<section class="product-section" id="product">
+  <div class="product-inner">
+    <div class="product-header fade-in">
+      <span class="section-label">Signature Collection</span>
+      <h2>The <em style="font-style:italic;color:var(--gold)">Radiance</em> Serum</h2>
+    </div>
+    <div class="product-card">
+      <div class="product-bottle-area fade-in">
+        <div class="product-ring"><div class="product-ring-dot"></div></div>
+        <div class="product-ring"><div class="product-ring-dot" style="top:auto;bottom:-2px;left:calc(50% - 2px)"></div></div>
+        <svg viewBox="0 0 180 320" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:55%;position:relative;z-index:2;filter:drop-shadow(var(--shadow-bottle));">
+          <rect x="80" y="8" width="20" height="8" rx="3" fill="url(#capGrad2)"/>
+          <rect x="85" y="2" width="10" height="10" rx="2" fill="url(#capGrad2)"/>
+          <rect x="78" y="16" width="24" height="30" rx="4" fill="url(#neckGrad2)"/>
+          <path d="M60 46 Q68 46 78 46 L102 46 Q112 46 120 46 L120 52 Q110 56 90 56 Q70 56 60 52 Z" fill="url(#bodyGrad2)"/>
+          <rect x="54" y="52" width="72" height="220" rx="8" fill="url(#bodyGrad2)"/>
+          <rect x="58" y="60" width="8" height="200" rx="4" fill="url(#highlightL2)" opacity="0.5"/>
+          <rect x="114" y="60" width="6" height="200" rx="3" fill="url(#highlightR2)" opacity="0.25"/>
+          <rect x="62" y="100" width="56" height="130" rx="3" fill="url(#labelGrad2)" opacity="0.85"/>
+          <line x1="65" y1="104" x2="115" y2="104" stroke="#c9a84c" stroke-width="0.5" opacity="0.7"/>
+          <line x1="65" y1="226" x2="115" y2="226" stroke="#c9a84c" stroke-width="0.5" opacity="0.7"/>
+          <text x="90" y="128" text-anchor="middle" font-family="Georgia, serif" font-size="7" fill="#c9a84c" letter-spacing="3" opacity="0.95">AURÉLIS</text>
+          <text x="90" y="148" text-anchor="middle" font-family="Georgia, serif" font-size="5" fill="#f0d99a" letter-spacing="1" opacity="0.75" font-style="italic">Radiance Serum</text>
+          <text x="90" y="165" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#c9a84c" opacity="0.3">✦</text>
+          <text x="90" y="210" text-anchor="middle" font-family="Arial" font-size="5" fill="#cdc8be" letter-spacing="1" opacity="0.5">30 mL · 1 FL. OZ.</text>
+          <ellipse cx="90" cy="272" rx="34" ry="4" fill="url(#bodyGrad2)" opacity="0.3"/>
+          <rect x="54" y="268" width="72" height="4" rx="2" fill="url(#capGrad2)" opacity="0.6"/>
+          <defs>
+            <linearGradient id="capGrad2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#8a6d2e"/><stop offset="40%" stop-color="#c9a84c"/><stop offset="70%" stop-color="#e2c07a"/><stop offset="100%" stop-color="#9a7a35"/></linearGradient>
+            <linearGradient id="neckGrad2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1a1812"/><stop offset="70%" stop-color="#2a2419"/><stop offset="100%" stop-color="#1a1812"/></linearGradient>
+            <linearGradient id="bodyGrad2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#0d0c0a"/><stop offset="50%" stop-color="#252219"/><stop offset="100%" stop-color="#0d0c0a"/></linearGradient>
+            <linearGradient id="labelGrad2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1e1b13"/><stop offset="100%" stop-color="#16140e"/></linearGradient>
+            <linearGradient id="highlightL2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#f0d99a"/><stop offset="100%" stop-color="transparent"/></linearGradient>
+            <linearGradient id="highlightR2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="transparent"/><stop offset="100%" stop-color="#c9a84c"/></linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="product-details fade-in fade-in-delay-2">
+        <span class="section-label">No. 01 — Best Seller</span>
+        <h3 class="product-name">Radiance Serum</h3>
+        <p class="product-subtitle">Deep Hydration Complex · 30 mL</p>
+        <p class="product-desc">An ultra-lightweight serum that delivers intense hydration deep within the skin's layers. Infused with liquid gold peptides and rare botanical actives, it visibly transforms skin radiance from the very first application.</p>
+        <div class="product-meta">
+          <div class="meta-item"><span class="meta-key">Skin Type</span><span class="meta-val">All Types</span></div>
+          <div class="meta-item"><span class="meta-key">Texture</span><span class="meta-val">Weightless</span></div>
+          <div class="meta-item"><span class="meta-key">Result</span><span class="meta-val">7 Days</span></div>
+          <div class="meta-item"><span class="meta-key">Fragrance</span><span class="meta-val">Jasmine · Rose</span></div>
+        </div>
+        <div class="product-price">$285 <span>/ 30 mL</span></div>
+        <div class="product-ctas btn-reveal">
+          <a href="#" class="btn-primary">Add to Cart</a>
+          <a href="#" class="btn-ghost">Learn More</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFITS -->
+<section class="benefits-section" id="benefits">
+  <div class="benefits-inner">
+    <div class="benefits-header fade-in">
+      <span class="section-label">Why AURÉLIS</span>
+      <h2>Crafted for <em style="font-style:italic;color:var(--gold)">visible</em> transformation</h2>
+    </div>
+    <div class="benefits-grid">
+      <div class="benefit-card fade-in">
+        <div class="benefit-num">01</div>
+        <div class="benefit-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 6v6l4 2"/></svg></div>
+        <h3 class="benefit-title">Deep Hydration</h3>
+        <p class="benefit-text">Our Hyaluronic Acid complex penetrates five layers deep, delivering moisture that lasts up to 72 hours. Skin feels plump, bouncy, and visibly renewed from within.</p>
+      </div>
+      <div class="benefit-card fade-in fade-in-delay-1">
+        <div class="benefit-num">02</div>
+        <div class="benefit-icon"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+        <h3 class="benefit-title">Skin Glow Enhancement</h3>
+        <p class="benefit-text">Liquid gold peptides and Vitamin C derivatives work synergistically to illuminate from within — delivering a luminous, glass-skin effect that radiates health and vitality.</p>
+      </div>
+      <div class="benefit-card fade-in fade-in-delay-2">
+        <div class="benefit-num">03</div>
+        <div class="benefit-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+        <h3 class="benefit-title">Smooth, Healthy Skin</h3>
+        <p class="benefit-text">Ceramide-rich actives restore the skin's natural barrier, refining texture and softening fine lines. Experience the velvety smoothness of skin in its most perfected state.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INGREDIENTS -->
+<section class="ingredients-section" id="ingredients">
+  <div class="ingredients-inner">
+    <div class="ingredients-header fade-in">
+      <span class="section-label">The Formula</span>
+      <h2>Ingredients rooted in <em style="font-style:italic;color:var(--gold)">science</em></h2>
+    </div>
+    <div class="ingredients-layout">
+      <div class="ingredients-list">
+        <div class="ingredient-row fade-in"><span class="ingredient-idx">01</span><div><div class="ingredient-name">Hyaluronic Acid Complex</div><div class="ingredient-desc">Tri-weight molecular formulation delivering hydration at every skin depth, from surface to dermis. Clinically proven to increase skin moisture by up to 143%.</div></div><span class="ingredient-badge">Core</span></div>
+        <div class="ingredient-row fade-in fade-in-delay-1"><span class="ingredient-idx">02</span><div><div class="ingredient-name">24K Gold Peptides</div><div class="ingredient-desc">Nano-encapsulated gold particles that stimulate collagen synthesis and accelerate cellular renewal for visible luminosity and elasticity restoration.</div></div><span class="ingredient-badge">Luxe</span></div>
+        <div class="ingredient-row fade-in fade-in-delay-2"><span class="ingredient-idx">03</span><div><div class="ingredient-name">Retinol Encapsulé</div><div class="ingredient-desc">A time-released retinol innovation that gently resurfaces skin overnight — reducing fine lines and uneven tone without irritation or sensitivity.</div></div><span class="ingredient-badge">Active</span></div>
+        <div class="ingredient-row fade-in fade-in-delay-3"><span class="ingredient-idx">04</span><div><div class="ingredient-name">White Lotus Extract</div><div class="ingredient-desc">Rare Nelumbo nucifera harvested at dawn carries potent antioxidants and skin-brightening enzymes that protect against environmental aggressors.</div></div><span class="ingredient-badge">Rare</span></div>
+        <div class="ingredient-row fade-in fade-in-delay-4"><span class="ingredient-idx">05</span><div><div class="ingredient-name">Marine Collagen</div><div class="ingredient-desc">Deep-sea sourced marine collagen that firms, plumps, and restores youthful density — bio-compatible with skin's own collagen network.</div></div><span class="ingredient-badge">Pro</span></div>
+      </div>
+      <div>
+        <div class="ingredients-science fade-in fade-in-delay-2">
+          <span class="section-label">Clinical Results</span>
+          <h4 class="science-title">Dermatologist Tested & Proven</h4>
+          <p class="science-text">Every AURÉLIS formulation undergoes rigorous clinical testing with board-certified dermatologists. Our results speak with the language of science — measured, verified, and documented.</p>
+          <div class="science-bar-label">Hydration Increase — 143%</div>
+          <div class="science-bar-track"><div class="science-bar-fill" style="width:95%"></div></div>
+          <div class="science-bar-label">Radiance Improvement — 89%</div>
+          <div class="science-bar-track"><div class="science-bar-fill" style="width:89%"></div></div>
+          <div class="science-bar-label">Skin Texture Refinement — 96%</div>
+          <div class="science-bar-track"><div class="science-bar-fill" style="width:96%"></div></div>
+          <div class="science-bar-label">Visible Results in 7 Days — 94%</div>
+          <div class="science-bar-track"><div class="science-bar-fill" style="width:94%"></div></div>
+          <p style="font-size:.65rem;color:var(--text-secondary);opacity:.5;margin-top:1.5rem;">Based on a 6-week clinical study with 120 participants.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials-section" id="testimonials">
+  <div class="testimonials-inner">
+    <div class="testimonials-header fade-in">
+      <span class="section-label">From Our Clientele</span>
+      <h2>Stories of <em style="font-style:italic;color:var(--gold)">transformation</em></h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card fade-in">
+        <div class="testimonial-quote">"</div>
+        <p class="testimonial-text">After two weeks of using the Radiance Serum, my skin looked entirely different. The glow is real — strangers ask me what I've changed. AURÉLIS has become my most sacred ritual.</p>
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-author"><div class="author-avatar">S</div><div><span class="author-name">Sophie Laurent</span><span class="author-loc">Paris, France</span></div></div>
+      </div>
+      <div class="testimonial-card fade-in fade-in-delay-1">
+        <div class="testimonial-quote">"</div>
+        <p class="testimonial-text">I've tried countless luxury serums over the years. None have matched the texture, the scent, or the visible results of AURÉLIS. It is in a category of its own.</p>
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-author"><div class="author-avatar">A</div><div><span class="author-name">Amelia Chen</span><span class="author-loc">New York, USA</span></div></div>
+      </div>
+      <div class="testimonial-card fade-in fade-in-delay-2">
+        <div class="testimonial-quote">"</div>
+        <p class="testimonial-text">The science behind AURÉLIS is matched only by its elegance. My skin has never been more hydrated, more balanced, or more luminous. I would give it more than five stars if I could.</p>
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-author"><div class="author-avatar">I</div><div><span class="author-name">Isabella Rossi</span><span class="author-loc">Milan, Italy</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="cta-section" id="cta">
+  <span class="section-label" style="display:block;text-align:center;margin-bottom:2rem;">Begin the Ritual</span>
+  <h2 class="fade-in">Start Your<br><em>Glow Journey</em></h2>
+  <p class="fade-in fade-in-delay-1">Join thousands of women who have discovered the transformative power of AURÉLIS. Subscribe for exclusive access, early launches, and personalised skincare guidance.</p>
+  <div class="email-form fade-in fade-in-delay-2">
+    <input type="email" placeholder="Your email address" />
+    <button>Subscribe</button>
+  </div>
+  <p class="cta-note fade-in fade-in-delay-3">No spam, ever. Unsubscribe at any time. Privacy respected.</p>
+  <div style="margin-top:3rem;" class="btn-reveal fade-in fade-in-delay-4">
+    <a href="#product" class="btn-primary" style="display:inline-block;">Shop the Collection</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <span class="footer-brand-name">AURÉLIS</span>
+      <p class="footer-brand-tagline">Deep Hydration. Radiant Glow.<br>Luxury skincare crafted at the intersection<br>of science and botanical artistry.</p>
+    </div>
+    <div>
+      <span class="footer-col-title">Collections</span>
+      <ul class="footer-links"><li><a href="#">Radiance Serum</a></li><li><a href="#">Glow Moisturiser</a></li><li><a href="#">Eye Elixir</a></li><li><a href="#">Ritual Sets</a></li></ul>
+    </div>
+    <div>
+      <span class="footer-col-title">Atelier</span>
+      <ul class="footer-links"><li><a href="#">Our Story</a></li><li><a href="#">The Science</a></li><li><a href="#">Sustainability</a></li><li><a href="#">Press</a></li></ul>
+    </div>
+    <div>
+      <span class="footer-col-title">Support</span>
+      <ul class="footer-links"><li><a href="#">Skin Consultation</a></li><li><a href="#">Shipping & Returns</a></li><li><a href="#">FAQ</a></li><li><a href="#">Contact Us</a></li></ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2025 AURÉLIS. All rights reserved.</span>
+    <div class="footer-legal"><a href="#">Privacy Policy</a><a href="#">Terms of Service</a><a href="#">Cookie Preferences</a></div>
+  </div>
+</footer>
+
+<script>
+/* ══════════════════════════════════════════════
+   THEME TOGGLE
+══════════════════════════════════════════════ */
+const themeToggle = document.getElementById('themeToggle');
+const html = document.documentElement;
+
+themeToggle.addEventListener('click', () => {
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+
+  // Regenerate particles for theme
+  regenerateParticles();
+});
+
+/* ══════════════════════════════════════════════
+   HANGING BOTTLE INTERACTIVE LIGHT EFFECT
+   — Canvas-based bulb glow on hover
+══════════════════════════════════════════════ */
+(function() {
+  const system = document.getElementById('hangingSystem');
+  const bottle = document.getElementById('heroBottle');
+  const filament = document.getElementById('bottleFilament');
+  const lightSvg = document.getElementById('bottleLightSvg');
+  const ambient = document.getElementById('bottleAmbient');
+  const wire = document.getElementById('hangWire');
+
+  // Canvas for real-time light casting
+  const lightCanvas = document.createElement('canvas');
+  lightCanvas.style.cssText = `
+    position:fixed; inset:0; pointer-events:none; z-index:2;
+    opacity:0; transition:opacity 0.5s ease; mix-blend-mode:screen;
+  `;
+  document.body.appendChild(lightCanvas);
+  const lctx = lightCanvas.getContext('2d');
+  let W = window.innerWidth, H = window.innerHeight;
+
+  function resizeLight() {
+    W = lightCanvas.width = window.innerWidth;
+    H = lightCanvas.height = window.innerHeight;
+  }
+  resizeLight();
+  window.addEventListener('resize', resizeLight);
+
+  let isHovering = false;
+  let glowIntensity = 0;
+  let bottleRect = null;
+  let animFrame;
+
+  function getBottleRect() {
+    return bottle.getBoundingClientRect();
+  }
+
+  function drawLightBulb(intensity) {
+    lctx.clearRect(0, 0, W, H);
+    if (!bottleRect || intensity <= 0) return;
+
+    const cx = bottleRect.left + bottleRect.width / 2;
+    const cy = bottleRect.top + bottleRect.height * 0.08; // top of bottle (cap)
+
+    // 1. Main radial glow from cap/filament point
+    const mainGlow = lctx.createRadialGradient(cx, cy, 0, cx, cy, 350 * intensity);
+    mainGlow.addColorStop(0, `rgba(255,248,180,${0.35 * intensity})`);
+    mainGlow.addColorStop(0.08, `rgba(255,230,120,${0.25 * intensity})`);
+    mainGlow.addColorStop(0.2, `rgba(255,210,80,${0.12 * intensity})`);
+    mainGlow.addColorStop(0.45, `rgba(201,168,76,${0.06 * intensity})`);
+    mainGlow.addColorStop(1, 'rgba(201,168,76,0)');
+    lctx.beginPath();
+    lctx.arc(cx, cy, 350 * intensity, 0, Math.PI * 2);
+    lctx.fillStyle = mainGlow;
+    lctx.fill();
+
+    // 2. Bottle body illumination (the bottle glows as a whole)
+    const bodyGlow = lctx.createRadialGradient(cx, cy + bottleRect.height * 0.5, 0, cx, cy + bottleRect.height * 0.3, bottleRect.height * 0.8);
+    bodyGlow.addColorStop(0, `rgba(255,240,140,${0.18 * intensity})`);
+    bodyGlow.addColorStop(0.5, `rgba(201,168,76,${0.08 * intensity})`);
+    bodyGlow.addColorStop(1, 'rgba(201,168,76,0)');
+    lctx.beginPath();
+    lctx.ellipse(cx, cy + bottleRect.height * 0.4, bottleRect.width * 1.5, bottleRect.height * 0.65, 0, 0, Math.PI * 2);
+    lctx.fillStyle = bodyGlow;
+    lctx.fill();
+
+    // 3. Light CONE downward (the key lightbulb effect)
+    const coneHeight = 400 * intensity;
+    const coneWidth = 280 * intensity;
+    const coneTip = { x: cx, y: cy + 10 };
+    const coneLeft = { x: cx - coneWidth / 2, y: cy + coneHeight };
+    const coneRight = { x: cx + coneWidth / 2, y: cy + coneHeight };
+
+    const coneGrad = lctx.createLinearGradient(cx, coneTip.y, cx, coneTip.y + coneHeight);
+    coneGrad.addColorStop(0, `rgba(255,248,180,${0.18 * intensity})`);
+    coneGrad.addColorStop(0.3, `rgba(255,230,100,${0.10 * intensity})`);
+    coneGrad.addColorStop(0.7, `rgba(201,168,76,${0.05 * intensity})`);
+    coneGrad.addColorStop(1, 'rgba(201,168,76,0)');
+
+    lctx.beginPath();
+    lctx.moveTo(coneTip.x, coneTip.y);
+    lctx.lineTo(coneLeft.x, coneLeft.y);
+    lctx.lineTo(coneRight.x, coneRight.y);
+    lctx.closePath();
+    lctx.fillStyle = coneGrad;
+    lctx.fill();
+
+    // 4. Floor pool of light
+    const floorY = coneTip.y + coneHeight;
+    const poolGrad = lctx.createRadialGradient(cx, floorY, 0, cx, floorY, coneWidth * 0.6);
+    poolGrad.addColorStop(0, `rgba(255,240,150,${0.12 * intensity})`);
+    poolGrad.addColorStop(0.5, `rgba(201,168,76,${0.05 * intensity})`);
+    poolGrad.addColorStop(1, 'rgba(201,168,76,0)');
+    lctx.beginPath();
+    lctx.ellipse(cx, floorY, coneWidth * 0.5, 20 * intensity, 0, 0, Math.PI * 2);
+    lctx.fillStyle = poolGrad;
+    lctx.fill();
+
+    // 5. Bright filament point flash
+    const filamentGlow = lctx.createRadialGradient(cx, cy, 0, cx, cy, 30 * intensity);
+    filamentGlow.addColorStop(0, `rgba(255,255,220,${0.9 * intensity})`);
+    filamentGlow.addColorStop(0.2, `rgba(255,240,150,${0.6 * intensity})`);
+    filamentGlow.addColorStop(0.6, `rgba(255,200,80,${0.2 * intensity})`);
+    filamentGlow.addColorStop(1, 'rgba(255,200,80,0)');
+    lctx.beginPath();
+    lctx.arc(cx, cy, 30 * intensity, 0, Math.PI * 2);
+    lctx.fillStyle = filamentGlow;
+    lctx.fill();
+  }
+
+  function animateLight() {
+    const target = isHovering ? 1 : 0;
+    glowIntensity += (target - glowIntensity) * 0.07;
+
+    if (glowIntensity > 0.005) {
+      bottleRect = getBottleRect();
+      lightCanvas.style.opacity = glowIntensity;
+      drawLightBulb(glowIntensity);
+    } else {
+      lightCanvas.style.opacity = 0;
+      lctx.clearRect(0, 0, W, H);
+    }
+
+    // Subtle wire sway on hover
+    if (isHovering) {
+      const t = Date.now() / 1000;
+      const sway = Math.sin(t * 2) * 1.5;
+      const wireEl = document.getElementById('hangWire');
+      if (wireEl) wireEl.style.transform = `translateX(calc(-50% + ${sway}px))`;
+    }
+
+    animFrame = requestAnimationFrame(animateLight);
+  }
+  animateLight();
+
+  system.addEventListener('mouseenter', () => { isHovering = true; });
+  system.addEventListener('mouseleave', () => {
+    isHovering = false;
+    const wireEl = document.getElementById('hangWire');
+    if (wireEl) wireEl.style.transform = 'translateX(-50%)';
+  });
+
+  // Mouse proximity effect even without direct hover
+  document.addEventListener('mousemove', e => {
+    if (!isHovering) {
+      const rect = system.getBoundingClientRect();
+      const bcx = rect.left + rect.width / 2;
+      const bcy = rect.top + rect.height / 2;
+      const dist = Math.sqrt((e.clientX - bcx) ** 2 + (e.clientY - bcy) ** 2);
+      if (dist < 200) {
+        // subtle proximity glow even before hover
+        glowIntensity = Math.max(glowIntensity, (1 - dist / 200) * 0.15);
+      }
+    }
+  });
+})();
+
+/* ═══════════════════════════════════════════════════════════════
+   MASTER BACKGROUND SCENE SYSTEM
+═══════════════════════════════════════════════════════════════ */
+const MasterBG = (function() {
+  const canvas = document.getElementById('master-bg');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  let mx = 0, my = 0, smx = 0, smy = 0;
+  let startTime = performance.now();
+  let currentScene = 0, targetScene = 0, sceneBlend = 1.0, blending = false;
+  const sceneNames = ['Gold Waves','Botanical','Serum Pour','Gold Particles','Cellular','Ocean','Cosmic'];
+
+  const ripples = [];
+
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+
+  document.addEventListener('mousemove', e => {
+    const pmx = smx, pmy = smy;
+    mx = e.clientX; my = e.clientY;
+    const mvx = mx - pmx, mvy = my - pmy;
+    const speed = Math.sqrt(mvx * mvx + mvy * mvy);
+    if (speed > 6 && Math.random() < 0.3) {
+      ripples.push({ x: mx, y: my, r: 0, maxR: 40 + speed * 2, alpha: 0.4 + Math.min(speed/30, 0.4), born: performance.now(), life: 900 + Math.random() * 400 });
+    }
+  });
+
+  function isLight() { return document.documentElement.getAttribute('data-theme') === 'light'; }
+
+  function updateRipples(now) {
+    for (let i = ripples.length - 1; i >= 0; i--) {
+      const r = ripples[i]; const age = (now - r.born) / r.life;
+      if (age >= 1) { ripples.splice(i, 1); continue; }
+      r.r = r.maxR * Math.pow(age, 0.4); r.currentAlpha = r.alpha * (1 - age);
+    }
+  }
+  function drawRipples() {
+    ripples.forEach(r => {
+      ctx.beginPath(); ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(201,168,76,${r.currentAlpha * 0.5})`; ctx.lineWidth = 1.2; ctx.stroke();
+    });
+  }
+
+  function getBase() { return isLight() ? '#f5f0e6' : '#050504'; }
+
+  function drawGoldWaves(t) {
+    ctx.fillStyle = getBase(); ctx.fillRect(0, 0, W, H);
+    const mx_norm = (smx / W - 0.5) * 2, my_norm = (smy / H - 0.5) * 2;
+    const waveAlphaBase = isLight() ? 0.06 : 0.04;
+    for (let i = 0; i < 9; i++) {
+      const yi = H * (0.1 + 0.1 * i);
+      const amp = 30 + i * 22 + Math.sin(t * 0.3) * 15;
+      const spd = 0.5 + i * 0.18;
+      const alpha = waveAlphaBase + i * 0.018 + Math.sin(t * 0.4 + i) * 0.01;
+      const yshift = my_norm * 20 * (i / 9);
+      ctx.beginPath(); ctx.moveTo(0, yi + yshift);
+      for (let x = 0; x <= W; x += 5) {
+        const mx_e = mx_norm * 25 * Math.sin(x / W * Math.PI);
+        const wy = yi + yshift + Math.sin(x * 0.008 + t * spd + i * 0.8) * amp + Math.cos(x * 0.004 + t * 0.4 + i * 0.5) * amp * 0.6 + mx_e;
+        ctx.lineTo(x, wy);
+      }
+      ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+      const grad = ctx.createLinearGradient(0, yi - amp, 0, yi + amp * 2);
+      grad.addColorStop(0, `rgba(240,217,154,${alpha * 1.5})`);
+      grad.addColorStop(0.4, `rgba(201,168,76,${alpha})`);
+      grad.addColorStop(1, `rgba(100,78,25,${alpha * 0.2})`);
+      ctx.fillStyle = grad; ctx.fill();
+    }
+    const orbGrd = ctx.createRadialGradient(smx, smy, 0, smx, smy, 280);
+    orbGrd.addColorStop(0, `rgba(201,168,76,${isLight() ? 0.08 : 0.12})`);
+    orbGrd.addColorStop(1, 'rgba(201,168,76,0)');
+    ctx.beginPath(); ctx.arc(smx, smy, 280, 0, Math.PI * 2); ctx.fillStyle = orbGrd; ctx.fill();
+    for (let i = 0; i < 45; i++) {
+      const seed = i * 137.5;
+      const bx = (W * ((seed * 0.618) % 1) + Math.sin(t * 0.2 + i) * 40) % W;
+      const by = H - ((t * 12 * (0.15 + (i % 6) * 0.12) + i * H * 0.1) % H);
+      const br = 0.8 + Math.sin(t + i) * 0.7;
+      const ba = (isLight() ? 0.08 : 0.12) + Math.sin(t * 0.8 + i * 0.9) * 0.05;
+      ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(240,217,154,${ba})`; ctx.fill();
+    }
+  }
+
+  function drawBotanicals(t) {
+    ctx.fillStyle = getBase(); ctx.fillRect(0, 0, W, H);
+    const mx_norm = smx / W;
+    const leaves = [{baseX:.15,baseY:.25,size:90,angle:.4},{baseX:.72,baseY:.15,size:120,angle:-.8},{baseX:.4,baseY:.6,size:80,angle:1.2},{baseX:.85,baseY:.5,size:100,angle:-.3},{baseX:.1,baseY:.7,size:70,angle:.9},{baseX:.6,baseY:.85,size:85,angle:-1.1},{baseX:.25,baseY:.45,size:60,angle:.6},{baseX:.9,baseY:.8,size:75,angle:-.5},{baseX:.5,baseY:.2,size:95,angle:1.4},{baseX:.35,baseY:.9,size:65,angle:-.7}];
+    leaves.forEach((l, i) => {
+      const drift = Math.sin(t * 0.35 + i * 1.1) * 30;
+      const sway = Math.sin(t * 0.5 + i * 0.7) * 0.12;
+      const parallax = (mx_norm - 0.5) * 40 * (i % 3 - 1);
+      const x = W * l.baseX + drift + parallax, y = H * l.baseY + drift * 0.6;
+      const alpha = (isLight() ? 0.07 : 0.05) + Math.sin(t * 0.4 + i) * 0.025;
+      ctx.save(); ctx.translate(x, y); ctx.rotate(l.angle + sway);
+      ctx.beginPath(); ctx.moveTo(0, -l.size); ctx.bezierCurveTo(l.size*.7,-l.size*.5,l.size*.7,l.size*.5,0,l.size*.4); ctx.bezierCurveTo(-l.size*.7,l.size*.5,-l.size*.7,-l.size*.5,0,-l.size);
+      ctx.fillStyle = `rgba(201,168,76,${alpha})`; ctx.fill();
+      ctx.beginPath(); ctx.moveTo(0, -l.size*.8); ctx.lineTo(0, l.size*.35);
+      ctx.strokeStyle = `rgba(240,217,154,${alpha*1.8})`; ctx.lineWidth = 0.8; ctx.stroke();
+      ctx.restore();
+    });
+    for (let i = 0; i < 60; i++) {
+      const seed = i * 93.7;
+      const bx = (W * ((seed * 0.618) % 1) + Math.sin(t * 0.15 + i) * 25) % W;
+      const by = H - ((t * 7 * (0.1 + (i % 8) * 0.1) + i * H * 0.08) % H);
+      const ba = 0.06 + Math.sin(t * 0.6 + i) * 0.04;
+      ctx.beginPath(); ctx.arc(bx, by, 0.8, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(240,217,154,${ba})`; ctx.fill();
+    }
+  }
+
+  function drawSerumPour(t) {
+    ctx.fillStyle = getBase(); ctx.fillRect(0, 0, W, H);
+    const streams = [{x:W*.3+(smx-W*.5)*.15,alpha:.35},{x:W*.5+(smx-W*.5)*.08,alpha:.55},{x:W*.7+(smx-W*.5)*.12,alpha:.30},{x:W*.2,alpha:.15},{x:W*.8,alpha:.15}];
+    streams.forEach((s, si) => {
+      ctx.beginPath(); ctx.moveTo(s.x - 8, 0);
+      for (let y = 0; y <= H; y += 4) { const w = Math.sin(y*.02+t*2.5+si)*12; ctx.lineTo(s.x+w-8,y); }
+      for (let y = H; y >= 0; y -= 4) { const w = Math.sin(y*.02+t*2.5+si)*12; ctx.lineTo(s.x+w+8,y); }
+      ctx.closePath();
+      const sg = ctx.createLinearGradient(s.x-8,0,s.x+8,0);
+      sg.addColorStop(0,`rgba(100,78,25,${s.alpha*.4})`); sg.addColorStop(.5,`rgba(240,217,154,${s.alpha})`); sg.addColorStop(1,`rgba(100,78,25,${s.alpha*.4})`);
+      ctx.fillStyle = sg; ctx.fill();
+    });
+    const pg = ctx.createRadialGradient(smx,smy,0,smx,smy,240); pg.addColorStop(0,'rgba(201,168,76,0.08)'); pg.addColorStop(1,'transparent');
+    ctx.beginPath(); ctx.arc(smx,smy,240,0,Math.PI*2); ctx.fillStyle=pg; ctx.fill();
+  }
+
+  function drawGoldParticles(t) {
+    ctx.fillStyle = getBase(); ctx.fillRect(0, 0, W, H);
+    for (let layer = 0; layer < 3; layer++) {
+      const ps = (layer+1)*0.015, count = 80-layer*20;
+      for (let i = 0; i < count; i++) {
+        const seed = i*137.5+layer*1000;
+        const bx = (W*((seed*.618)%1)+(smx-W/2)*ps*-1)%W, by = (H*((seed*.382)%1)+(smy-H/2)*ps*-1)%H;
+        const sz = .6+(layer*.8)+Math.sin(t*.9+i)*.6;
+        const al = (isLight()?.1:.15)+(layer*.1)+Math.sin(t*1.2+i*.8)*.1;
+        ctx.save(); ctx.translate(bx,by); ctx.rotate(t*.3+i);
+        ctx.beginPath(); const s=sz*2; ctx.moveTo(0,-s*1.8); ctx.lineTo(s,0); ctx.lineTo(0,s*1.8); ctx.lineTo(-s,0); ctx.closePath();
+        ctx.fillStyle=`rgba(240,217,154,${al})`; ctx.fill(); ctx.restore();
+      }
+    }
+    const nearPts = [];
+    for (let i=0;i<12;i++){const a=(i/12)*Math.PI*2+t*.1,d=80+Math.sin(t*.5+i)*40;nearPts.push({x:smx+Math.cos(a)*d,y:smy+Math.sin(a)*d});}
+    nearPts.push({x:smx,y:smy});
+    for(let i=0;i<nearPts.length;i++)for(let j=i+1;j<nearPts.length;j++){const dx=nearPts[i].x-nearPts[j].x,dy=nearPts[i].y-nearPts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<150){ctx.beginPath();ctx.moveTo(nearPts[i].x,nearPts[i].y);ctx.lineTo(nearPts[j].x,nearPts[j].y);ctx.strokeStyle=`rgba(201,168,76,${(1-d/150)*.2})`;ctx.lineWidth=.6;ctx.stroke();}}
+  }
+
+  function drawCellular(t) {
+    ctx.fillStyle = getBase(); ctx.fillRect(0, 0, W, H);
+    const R=28, rows=Math.ceil(H/(R*1.5))+2, cols=Math.ceil(W/(R*1.73))+2;
+    for(let row=0;row<rows;row++)for(let col=0;col<cols;col++){
+      const xOff=row%2===0?0:R*.866, cx=col*R*1.73+xOff, cy=row*R*1.5;
+      const distToCursor=Math.sqrt((cx-smx)**2+(cy-smy)**2);
+      const ci=Math.max(0,1-distToCursor/220);
+      const pulse=Math.sin(t*.8+cx*.015+cy*.012)*.5+.5;
+      const alpha=pulse*(isLight()?.05:.06)+ci*.18;
+      ctx.beginPath();
+      for(let s=0;s<6;s++){const a=(s/6)*Math.PI*2-Math.PI/6;const hx=cx+R*.87*Math.cos(a),hy=cy+R*.87*Math.sin(a);s===0?ctx.moveTo(hx,hy):ctx.lineTo(hx,hy);}
+      ctx.closePath();
+      if(ci>.1){const fill=ctx.createRadialGradient(cx,cy,0,cx,cy,R);fill.addColorStop(0,`rgba(201,168,76,${alpha*.5})`);fill.addColorStop(1,'rgba(201,168,76,0)');ctx.fillStyle=fill;ctx.fill();}
+      ctx.strokeStyle=`rgba(201,168,76,${alpha*1.8})`;ctx.lineWidth=.7;ctx.stroke();
+    }
+  }
+
+  function drawOceanDepth(t) {
+    ctx.fillStyle = isLight() ? '#eef3f5' : '#04060A'; ctx.fillRect(0, 0, W, H);
+    const mx_norm=(smx/W-.5);
+    for(let i=0;i<14;i++){
+      const xBase=W*(i/14);
+      ctx.beginPath(); ctx.moveTo(xBase,0);
+      for(let y=0;y<=H;y+=5){const w=Math.sin(y*.01+t*.6+i*.5)*35+Math.cos(y*.006+t*.35+i*.9)*20+mx_norm*30;ctx.lineTo(xBase+w,y);}
+      for(let y=H;y>=0;y-=5){const w=Math.sin(y*.01+t*.6+i*.5)*35+Math.cos(y*.006+t*.35+i*.9)*20+mx_norm*30;ctx.lineTo(xBase+W/14+w,y);}
+      ctx.closePath();
+      const alpha=.025+Math.abs(Math.sin(t*.4+i*.4))*.02;
+      const cg=ctx.createLinearGradient(xBase,0,xBase+W/14,0);
+      cg.addColorStop(0,`rgba(100,140,180,${alpha})`);cg.addColorStop(.5,`rgba(201,168,76,${alpha*.7})`);cg.addColorStop(1,`rgba(100,140,180,${alpha})`);
+      ctx.fillStyle=cg;ctx.fill();
+    }
+    for(let i=0;i<35;i++){
+      const seed=i*137.5,bx=(W*((seed*.618)%1)+mx_norm*25+Math.sin(t*.2+i)*15)%W;
+      const by=H-((t*15*(.2+(i%5)*.15)+i*H*.1)%H);
+      const br=1.5+Math.sin(i*2.3+t)*1,ba=.2+Math.sin(t*.8+i)*.12;
+      const bg=ctx.createRadialGradient(bx,by,0,bx,by,br*5);
+      bg.addColorStop(0,`rgba(180,220,255,${ba})`);bg.addColorStop(.4,`rgba(201,168,76,${ba*.4})`);bg.addColorStop(1,'transparent');
+      ctx.beginPath();ctx.arc(bx,by,br*5,0,Math.PI*2);ctx.fillStyle=bg;ctx.fill();
+    }
+  }
+
+  function drawCosmicBloom(t) {
+    ctx.fillStyle = getBase(); ctx.fillRect(0, 0, W, H);
+    const cx=W/2+(smx-W/2)*.1, cy=H/2+(smy-H/2)*.1;
+    for(let arm=0;arm<8;arm++){
+      const armAngle=(arm/8)*Math.PI*2+t*.08;
+      for(let r=0;r<400;r+=8){
+        const angle=armAngle+r*.04+Math.sin(t*.3+arm)*.2;
+        const x=cx+Math.cos(angle)*r, y=cy+Math.sin(angle)*r;
+        const alpha=(1-r/400)*.06+Math.sin(t*.5+arm+r*.01)*.02;
+        const size=1.5+(1-r/400)*2;
+        ctx.beginPath();ctx.arc(x,y,size,0,Math.PI*2);
+        ctx.fillStyle=`rgba(201,168,76,${Math.max(0,alpha)})`;ctx.fill();
+      }
+    }
+    for(let i=0;i<24;i++){
+      const angle=(i/24)*Math.PI*2+t*.05;
+      const len=60+Math.sin(t*1.2+i)*30+Math.sqrt((smx-W/2)**2+(smy-H/2)**2)*.08;
+      ctx.beginPath();ctx.moveTo(smx,smy);ctx.lineTo(smx+Math.cos(angle)*len,smy+Math.sin(angle)*len);
+      ctx.strokeStyle=`rgba(240,217,154,${.06+Math.sin(t+i)*.03})`;ctx.lineWidth=.8;ctx.stroke();
+    }
+    const nebulae=[{x:W*.2,y:H*.3,r:200,a:.04},{x:W*.8,y:H*.7,r:180,a:.035},{x:W*.5,y:H*.5,r:250,a:.03}];
+    nebulae.forEach((n,i)=>{
+      const nx=n.x+Math.sin(t*.15+i)*30,ny=n.y+Math.cos(t*.12+i)*20;
+      const ng=ctx.createRadialGradient(nx,ny,0,nx,ny,n.r);
+      ng.addColorStop(0,`rgba(201,168,76,${n.a*2})`);ng.addColorStop(.5,`rgba(201,168,76,${n.a})`);ng.addColorStop(1,'transparent');
+      ctx.beginPath();ctx.arc(nx,ny,n.r,0,Math.PI*2);ctx.fillStyle=ng;ctx.fill();
+    });
+  }
+
+  const sceneDrawers = [drawGoldWaves,drawBotanicals,drawSerumPour,drawGoldParticles,drawCellular,drawOceanDepth,drawCosmicBloom];
+
+  function draw() {
+    const now = performance.now(), t = (now - startTime) / 1000;
+    smx += (mx - smx) * 0.06; smy += (my - smy) * 0.06;
+    if (blending) { sceneBlend -= 0.025; if (sceneBlend <= 0) { currentScene = targetScene; sceneBlend = 1; blending = false; } }
+    if (blending && sceneBlend < 1) {
+      ctx.save(); ctx.globalAlpha = sceneBlend; sceneDrawers[currentScene](t); ctx.restore();
+      ctx.save(); ctx.globalAlpha = 1 - sceneBlend; sceneDrawers[targetScene](t); ctx.restore();
+    } else { sceneDrawers[currentScene](t); }
+    updateRipples(now); drawRipples();
+    requestAnimationFrame(draw);
+  }
+
+  function setScene(idx) {
+    if (idx === targetScene) return;
+    targetScene = idx; blending = true; sceneBlend = 1;
+    const label = document.getElementById('scene-label');
+    if (label) label.textContent = sceneNames[idx];
+  }
+
+  draw();
+  return { setScene };
+})();
+
+/* ── SCROLL SCENE SWITCHER ── */
+(function() {
+  const sections = ['home','story','product','benefits','ingredients','testimonials','cta'];
+  const sectionEls = sections.map(id => document.getElementById(id)).filter(Boolean);
+  const sectionToScene = {home:0,story:1,product:2,benefits:3,ingredients:4,testimonials:5,cta:6};
+  let lastScene = 0;
+  function checkSection() {
+    const scrollMid = window.scrollY + window.innerHeight * 0.4;
+    for (let i = sectionEls.length - 1; i >= 0; i--) {
+      if (scrollMid >= sectionEls[i].offsetTop) {
+        const scene = sectionToScene[sectionEls[i].id] ?? 0;
+        if (scene !== lastScene) { lastScene = scene; MasterBG.setScene(scene); }
+        break;
+      }
+    }
+  }
+  window.addEventListener('scroll', checkSection, { passive: true });
+  checkSection();
+})();
+
+/* ── CURSOR AURA CANVAS ── */
+(function() {
+  const canvas = document.getElementById('cursor-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, trail = [], mx = window.innerWidth/2, my = window.innerHeight/2;
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; trail.push({x:mx,y:my}); if (trail.length > 32) trail.shift(); });
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const grd = ctx.createRadialGradient(mx,my,0,mx,my,80);
+    grd.addColorStop(0,'rgba(201,168,76,0.07)'); grd.addColorStop(1,'rgba(201,168,76,0)');
+    ctx.beginPath(); ctx.arc(mx,my,80,0,Math.PI*2); ctx.fillStyle=grd; ctx.fill();
+    if (trail.length > 1) {
+      for (let i = 1; i < trail.length; i++) {
+        const ta = i / trail.length;
+        ctx.beginPath(); ctx.moveTo(trail[i-1].x,trail[i-1].y); ctx.lineTo(trail[i].x,trail[i].y);
+        ctx.strokeStyle = `rgba(201,168,76,${ta*ta*.25})`; ctx.lineWidth = ta*2.5; ctx.lineCap='round'; ctx.stroke();
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── CUSTOM CURSOR ── */
+(function() {
+  const ring = document.getElementById('cursorRing'), dot = document.getElementById('cursorDot');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    dot.style.transform = `translate(${mx}px,${my}px) translate(-50%,-50%)`;
+  });
+  function a() { rx += (mx-rx)*.12; ry += (my-ry)*.12; ring.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`; requestAnimationFrame(a); } a();
+})();
+
+/* ── PARTICLES ── */
+function regenerateParticles() {
+  const c = document.getElementById('particles-global');
+  c.innerHTML = '';
+  for (let i = 0; i < 18; i++) {
+    const el = document.createElement('div'); el.className = 'particle';
+    const s = Math.random()*3+1, l = Math.random()*100, dur = Math.random()*18+14, del = -Math.random()*18;
+    el.style.cssText = `width:${s}px;height:${s}px;left:${l}%;animation-duration:${dur}s;animation-delay:${del}s;opacity:${Math.random()*.3+.04};`;
+    c.appendChild(el);
+  }
+}
+regenerateParticles();
+
+let tX = 0, ttX = 0;
+document.addEventListener('mousemove', e => { ttX = (e.clientX/window.innerWidth - .5) * 25; });
+function ap() { tX += (ttX-tX)*.04; document.getElementById('particles-global').style.transform=`translateX(${tX}px)`; requestAnimationFrame(ap); } ap();
+
+/* ── NAV SCROLL ── */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 80), { passive: true });
+
+/* ── FADE-IN + BTN-REVEAL ── */
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: .1, rootMargin: '0px 0px -60px 0px' });
+document.querySelectorAll('.fade-in, .btn-reveal').forEach(el => obs.observe(el));
+setTimeout(() => { document.querySelectorAll('.hero .btn-reveal').forEach(el => el.classList.add('visible')); }, 800);
+
+/* ── MAGNETIC BUTTONS ── */
+document.querySelectorAll('.btn-primary, .btn-ghost, .nav-cta').forEach(btn => {
+  btn.addEventListener('mousemove', e => {
+    const r = btn.getBoundingClientRect();
+    const dx = e.clientX - (r.left + r.width/2), dy = e.clientY - (r.top + r.height/2);
+    btn.style.transform = `translate(${dx*.1}px,${dy*.1}px) translateY(-3px)`;
+  });
+  btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
+});
+
+/* ── PARALLAX HERO LINES ── */
+window.addEventListener('scroll', () => {
+  const sy = window.scrollY;
+  document.querySelectorAll('.hero-line').forEach((el, i) => { el.style.transform = `translateY(${sy*(i+1)*.15}px)`; });
+}, { passive: true });
+</script>
+</body>
+</html>
