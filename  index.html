@@ -84,9 +84,11 @@
 
   /* ── CUSTOM CURSOR ── */
   .cursor { position: fixed; top: 0; left: 0; z-index: 9999; pointer-events: none; }
-  .cursor-dot { width: 6px; height: 6px; background: var(--gold-pale); border-radius: 50%; transform: translate(-50%,-50%); transition: transform .15s ease; mix-blend-mode: difference; }
-  .cursor-ring { width: 36px; height: 36px; border: 1px solid var(--gold); border-radius: 50%; transform: translate(-50%,-50%); transition: transform .35s cubic-bezier(.16,1,.3,1), width .3s, height .3s, border-color .3s; opacity: .7; mix-blend-mode: difference; }
-  body:has(a:hover) .cursor-ring, body:has(button:hover) .cursor-ring { width: 56px; height: 56px; border-color: var(--gold-pale); }
+  .cursor-dot { width: 8px; height: 8px; background: var(--gold-pale); border-radius: 50%; transform: translate(-50%,-50%); transition: transform .1s ease, width .2s ease, height .2s ease; mix-blend-mode: screen; box-shadow: 0 0 12px rgba(240,217,154,0.8), 0 0 24px rgba(201,168,76,0.4); }
+  .cursor-ring { width: 32px; height: 32px; border: 1.5px solid var(--gold); border-radius: 50%; transform: translate(-50%,-50%); transition: transform .25s cubic-bezier(.16,1,.3,1), width .3s cubic-bezier(.16,1,.3,1), height .3s cubic-bezier(.16,1,.3,1), border-color .3s, box-shadow .3s; opacity: .8; mix-blend-mode: screen; box-shadow: 0 0 8px rgba(201,168,76,0.4) inset, 0 0 16px rgba(201,168,76,0.2); }
+  .cursor-trail { position: fixed; pointer-events: none; border-radius: 50%; mix-blend-mode: screen; }
+  body:has(a:hover) .cursor-ring, body:has(button:hover) .cursor-ring { width: 60px; height: 60px; border-color: var(--gold-pale); box-shadow: 0 0 12px rgba(240,217,154,0.8) inset, 0 0 24px rgba(240,217,154,0.5), 0 0 40px rgba(201,168,76,0.3); }
+  body:has(a:hover) .cursor-dot, body:has(button:hover) .cursor-dot { width: 12px; height: 12px; box-shadow: 0 0 20px rgba(240,217,154,1), 0 0 40px rgba(201,168,76,0.6); }
 
   ::-webkit-scrollbar { width: 3px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
@@ -1307,40 +1309,169 @@ const MasterBG = (function() {
   checkSection();
 })();
 
-/* ── CURSOR AURA CANVAS ── */
+/* ── CURSOR AURA CANVAS WITH MODERN GLOW ── */
 (function() {
   const canvas = document.getElementById('cursor-canvas');
   const ctx = canvas.getContext('2d');
   let W, H, trail = [], mx = window.innerWidth/2, my = window.innerHeight/2;
+  let isOverInteractive = false;
+  
   function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-  resize(); window.addEventListener('resize', resize);
-  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; trail.push({x:mx,y:my}); if (trail.length > 32) trail.shift(); });
+  resize(); 
+  window.addEventListener('resize', resize);
+  
+  document.addEventListener('mousemove', e => { 
+    mx = e.clientX; 
+    my = e.clientY; 
+    trail.push({x: mx, y: my, life: 1.0}); 
+    if (trail.length > 24) trail.shift(); 
+  });
+  
+  // Detect if hovering over interactive elements
+  document.addEventListener('mouseenter', e => {
+    isOverInteractive = (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.classList.contains('interactive'));
+  }, true);
+  
+  document.addEventListener('mouseleave', e => {
+    isOverInteractive = false;
+  }, true);
+  
   function draw() {
     ctx.clearRect(0, 0, W, H);
-    const grd = ctx.createRadialGradient(mx,my,0,mx,my,80);
-    grd.addColorStop(0,'rgba(201,168,76,0.07)'); grd.addColorStop(1,'rgba(201,168,76,0)');
-    ctx.beginPath(); ctx.arc(mx,my,80,0,Math.PI*2); ctx.fillStyle=grd; ctx.fill();
+    
+    // Main aura glow - larger when over interactive elements
+    const auraSize = isOverInteractive ? 120 : 80;
+    const mainGradient = ctx.createRadialGradient(mx, my, 0, mx, my, auraSize);
+    mainGradient.addColorStop(0, `rgba(240,217,154,${isOverInteractive ? 0.12 : 0.08})`);
+    mainGradient.addColorStop(0.4, `rgba(201,168,76,${isOverInteractive ? 0.08 : 0.04})`);
+    mainGradient.addColorStop(1, 'rgba(201,168,76,0)');
+    
+    ctx.beginPath(); 
+    ctx.arc(mx, my, auraSize, 0, Math.PI * 2); 
+    ctx.fillStyle = mainGradient; 
+    ctx.fill();
+    
+    // Secondary glow ring
+    const secondaryGrad = ctx.createRadialGradient(mx, my, 20, mx, my, auraSize + 40);
+    secondaryGrad.addColorStop(0, `rgba(201,168,76,${isOverInteractive ? 0.05 : 0.02})`);
+    secondaryGrad.addColorStop(1, 'rgba(201,168,76,0)');
+    
+    ctx.beginPath();
+    ctx.arc(mx, my, auraSize + 40, 0, Math.PI * 2);
+    ctx.fillStyle = secondaryGrad;
+    ctx.fill();
+    
+    // Enhanced trail effect
     if (trail.length > 1) {
       for (let i = 1; i < trail.length; i++) {
+        const current = trail[i];
+        const prev = trail[i - 1];
         const ta = i / trail.length;
-        ctx.beginPath(); ctx.moveTo(trail[i-1].x,trail[i-1].y); ctx.lineTo(trail[i].x,trail[i].y);
-        ctx.strokeStyle = `rgba(201,168,76,${ta*ta*.25})`; ctx.lineWidth = ta*2.5; ctx.lineCap='round'; ctx.stroke();
+        const alpha = ta * ta * 0.3;
+        const width = ta * 3;
+        const trailGrad = ctx.createLinearGradient(prev.x, prev.y, current.x, current.y);
+        trailGrad.addColorStop(0, `rgba(201,168,76,${alpha * 0.5})`);
+        trailGrad.addColorStop(0.5, `rgba(240,217,154,${alpha})`);
+        trailGrad.addColorStop(1, `rgba(201,168,76,${alpha * 0.5})`);
+        
+        ctx.beginPath();
+        ctx.moveTo(prev.x, prev.y);
+        ctx.lineTo(current.x, current.y);
+        ctx.strokeStyle = trailGrad;
+        ctx.lineWidth = width;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.stroke();
+        
+        // Add blur effect to trail
+        ctx.globalAlpha = alpha * 0.5;
+        ctx.beginPath();
+        ctx.moveTo(prev.x, prev.y);
+        ctx.lineTo(current.x, current.y);
+        ctx.strokeStyle = `rgba(240,217,154,${alpha * 0.3})`;
+        ctx.lineWidth = width * 2.5;
+        ctx.stroke();
+        ctx.globalAlpha = 1.0;
       }
     }
+    
+    // Decay trail particles
+    for (let i = trail.length - 1; i >= 0; i--) {
+      trail[i].life -= 0.02;
+      if (trail[i].life <= 0) {
+        trail.splice(i, 1);
+      }
+    }
+    
     requestAnimationFrame(draw);
   }
   draw();
 })();
 
-/* ── CUSTOM CURSOR ── */
+/* ── CUSTOM CURSOR WITH ADVANCED TRAIL ── */
 (function() {
   const ring = document.getElementById('cursorRing'), dot = document.getElementById('cursorDot');
+  const cursor = document.getElementById('cursor');
   let mx = 0, my = 0, rx = 0, ry = 0;
+  const trail = [];
+  const maxTrailLength = 12;
+  
   document.addEventListener('mousemove', e => {
-    mx = e.clientX; my = e.clientY;
+    mx = e.clientX; 
+    my = e.clientY;
     dot.style.transform = `translate(${mx}px,${my}px) translate(-50%,-50%)`;
+    
+    // Create trail particles
+    if (Math.random() > 0.7) {
+      const trailEl = document.createElement('div');
+      trailEl.className = 'cursor-trail';
+      trailEl.style.left = mx + 'px';
+      trailEl.style.top = my + 'px';
+      trailEl.style.width = '6px';
+      trailEl.style.height = '6px';
+      trailEl.style.background = `rgba(240,217,154,${0.6 + Math.random() * 0.3})`;
+      trailEl.style.boxShadow = `0 0 8px rgba(201,168,76,${0.4 + Math.random() * 0.4})`;
+      cursor.parentElement.insertBefore(trailEl, cursor);
+      
+      trail.push({el: trailEl, life: 1.0, maxLife: 1.0});
+    }
+    
+    // Update and remove old trail particles
+    for (let i = trail.length - 1; i >= 0; i--) {
+      trail[i].life -= 0.05;
+      if (trail[i].life <= 0) {
+        trail[i].el.remove();
+        trail.splice(i, 1);
+      } else {
+        trail[i].el.style.opacity = trail[i].life;
+        trail[i].el.style.transform = `scale(${trail[i].life}) translate(-50%,-50%)`;
+        trail[i].el.style.boxShadow = `0 0 ${12 * trail[i].life}px rgba(201,168,76,${0.4 * trail[i].life})`;
+      }
+    }
   });
-  function a() { rx += (mx-rx)*.12; ry += (my-ry)*.12; ring.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`; requestAnimationFrame(a); } a();
+  
+  function animateCursor() { 
+    rx += (mx - rx) * 0.15; 
+    ry += (my - ry) * 0.15; 
+    ring.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`; 
+    requestAnimationFrame(animateCursor); 
+  } 
+  animateCursor();
+  
+  // Detect hover on interactive elements
+  document.addEventListener('mouseenter', e => {
+    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.classList.contains('interactive')) {
+      dot.style.width = '12px';
+      dot.style.height = '12px';
+    }
+  }, true);
+  
+  document.addEventListener('mouseleave', e => {
+    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.classList.contains('interactive')) {
+      dot.style.width = '8px';
+      dot.style.height = '8px';
+    }
+  }, true);
 })();
 
 /* ── PARTICLES ── */
