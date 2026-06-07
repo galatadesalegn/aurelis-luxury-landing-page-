@@ -1,224 +1,156 @@
 <div align="center">
 
-# 🚀 Auxiliary
+![header](https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=9&height=120&section=header&text=AURÉLIS&fontSize=60&fontColor=f5e6c8&animation=fadeIn&fontAlignY=65)
 
-### Modern, High-Converting Landing Page
-
-[![React](https://img.shields.io/badge/React-18.x-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
-[![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-3.x-38BDF8?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
-[![Vite](https://img.shields.io/badge/Vite-5.x-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev)
-[![Framer Motion](https://img.shields.io/badge/Framer_Motion-11.x-0055FF?style=flat-square&logo=framer&logoColor=white)](https://www.framer.com/motion)
-[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
-[![Deploy](https://img.shields.io/badge/live-online-brightgreen?style=flat-square)](https://your-live-url.com)
+### ✦ &nbsp; Luxury Skincare — Interactive Landing Page &nbsp; ✦
 
 <br/>
 
-> A sleek, animated, and fully responsive landing page built to convert visitors into customers. Fast, accessible, and easy to customize.
+[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
+[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![No Dependencies](https://img.shields.io/badge/Dependencies-Zero-gold?style=for-the-badge&logo=checkmarx&logoColor=white)](#)
 
 <br/>
 
-**[🌐 Live Demo](https://your-live-url.com)** · **[🐛 Report Bug](https://github.com/galatadesalegn/auxiliary/issues)** · **[✨ Request Feature](https://github.com/galatadesalegn/auxiliary/issues)**
+[![Live Demo](https://img.shields.io/badge/✦%20Live%20Demo-View%20Site-c9a96e?style=for-the-badge)](https://galatadesalegn.github.io/aurelis-luxury-landing-page-)
+[![Repo](https://img.shields.io/badge/GitHub-aurelis--luxury-181717?style=for-the-badge&logo=github)](https://github.com/galatadesalegn/aurelis-luxury-landing-page-.git)
+
+<br/>
+
+[![Aurelis Preview](https://res.cloudinary.com/debw95rak/image/upload/w_900,q_auto,f_auto/Screenshot_20260607_131514_zkedsd)](https://galatadesalegn.github.io/aurelis-luxury-landing-page-)
+
+> *✦ Click to experience the live demo ✦*
 
 </div>
 
 ---
 
-## ✨ Features
+<div align="center">
 
-- 🎞️ **Smooth animations** — scroll-triggered reveals with Framer Motion
-- 📱 **Fully responsive** — pixel-perfect on mobile, tablet, and desktop
-- 🌑 **Dark / Light mode** — system-aware with manual toggle
-- ⚡ **Blazing fast** — Vite build, lazy-loaded images, optimized assets
-- 📬 **Newsletter signup** — email capture with form validation
-- ♿ **Accessible** — semantic HTML, ARIA labels, keyboard navigation
-- 🔍 **SEO optimized** — Open Graph, Twitter Card, and meta tags
-- 🧩 **Component-based** — every section is an isolated, reusable component
+```
+  ┌──────────┬──────────┬──────────┬──────────┬──────────┐
+  │   HERO   │  STORY   │ PRODUCT  │ SCIENCE  │ REVIEWS  │
+  └──────────┴──────────┴──────────┴──────────┴──────────┘
+```
+
+</div>
 
 ---
 
-## 🛠 Tech Stack
+## ✦ Overview
 
-| Technology | Purpose |
-|-----------|---------|
-| React 18 | UI framework |
-| Tailwind CSS 3 | Styling |
-| Vite 5 | Build tool & dev server |
-| Framer Motion | Animations |
-| Lucide React | Icons |
-| React Hook Form | Form handling & validation |
+**AURÉLIS** is a high-fidelity, single-file luxury landing page built entirely with vanilla HTML, CSS, and JavaScript — zero frameworks, zero dependencies. It replicates the premium digital presence of world-class skincare brands through real-time canvas light effects, dual theme support, and a fully custom interaction layer.
+
+Everything — structure, styling, and interactivity — lives inside one self-contained file.
 
 ---
 
-## 🚀 Getting Started
+## ✦ Features
 
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) v18+
-- npm or yarn
-
-### 1. Clone the repo
-
-```bash
-git clone https://github.com/galatadesalegn/auxiliary.git
-cd auxiliary
 ```
-
-### 2. Install dependencies
-
-```bash
-npm install
-```
-
-### 3. Start the dev server
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:5173](http://localhost:5173) in your browser.
-
-### 4. Build for production
-
-```bash
-npm run build
+  ╔══════════════════════════════════════════════════════╗
+  ║                                                      ║
+  ║   🕯  Interactive hero with canvas light & shadows  ║
+  ║   🌗  Dark / Light theme engine (CSS variables)     ║
+  ║   🖱  Dual-layer custom cursor with trail effect    ║
+  ║   ✨  Particle background depth system              ║
+  ║   📜  Scroll-triggered reveal animations            ║
+  ║   📊  Animated clinical ingredient progress bars   ║
+  ║   📱  Fully responsive — mobile to widescreen      ║
+  ║   🎨  Gold / Ivory / Black luxury color palette    ║
+  ║   🚀  Zero dependencies — pure vanilla stack       ║
+  ║                                                      ║
+  ╚══════════════════════════════════════════════════════╝
 ```
 
 ---
 
-## 📁 Project Structure
-
-```
-auxiliary/
-├── public/
-│   ├── favicon.ico
-│   └── og-image.png              # Open Graph preview image
-├── src/
-│   ├── components/
-│   │   ├── Navbar.jsx             # Sticky nav with mobile menu
-│   │   ├── Hero.jsx               # Hero section with CTA
-│   │   ├── Features.jsx           # Feature highlights grid
-│   │   ├── HowItWorks.jsx         # Step-by-step explainer
-│   │   ├── Testimonials.jsx       # Customer quotes carousel
-│   │   ├── Pricing.jsx            # Pricing tiers table
-│   │   ├── FAQ.jsx                # Accordion FAQ section
-│   │   ├── Newsletter.jsx         # Email capture form
-│   │   └── Footer.jsx
-│   ├── data/
-│   │   ├── features.js            # ← Edit to update features
-│   │   ├── testimonials.js        # ← Edit to update reviews
-│   │   ├── pricing.js             # ← Edit to update pricing
-│   │   └── faq.js                 # ← Edit to update FAQs
-│   ├── hooks/
-│   │   └── useScrollReveal.js
-│   ├── App.jsx
-│   ├── main.jsx
-│   └── index.css
-├── tailwind.config.js
-├── vite.config.js
-└── index.html
-```
-
----
-
-## 🗂 Page Sections
+## ✦ Page Sections
 
 | Section | Description |
-|---------|-------------|
-| **Navbar** | Sticky header with logo, nav links, and CTA button |
-| **Hero** | Bold headline, subtext, CTA buttons, and hero image |
-| **Features** | Icon grid highlighting key product benefits |
-| **How It Works** | Numbered step-by-step walkthrough |
-| **Testimonials** | Customer reviews with avatars and star ratings |
-| **Pricing** | Three-tier pricing cards with feature lists |
-| **FAQ** | Collapsible accordion for common questions |
-| **Newsletter** | Email signup with validation |
-| **Footer** | Links, socials, and copyright |
+|---|---|
+| **Nav** | Fixed navigation with theme toggle and shop CTA |
+| **Hero** | Atmospheric intro with interactive hanging bottle animation |
+| **Story** | Brand philosophy and clinical success statistics |
+| **Product** | Deep-dive into the signature *Radiance Serum* |
+| **Benefits** | Key value propositions with interactive cards |
+| **Ingredients** | Scientific breakdown with animated efficacy bars |
+| **Testimonials** | Global client reviews in a structured grid |
+| **CTA** | Newsletter subscription and final shop link |
+| **Footer** | Brand info, links, and legal disclosures |
 
 ---
 
-## 🎨 Customization
+## ✦ Tech Stack
 
-All content is stored in `src/data/` — no need to touch component code.
-
-**Update features** — `src/data/features.js`:
-
-```js
-export const features = [
-  {
-    icon: "Zap",              // any Lucide icon name
-    title: "Lightning Fast",
-    description: "Optimized for performance from day one.",
-  },
-];
-```
-
-**Update pricing** — `src/data/pricing.js`:
-
-```js
-export const plans = [
-  {
-    name: "Starter",
-    price: "$9",
-    period: "per month",
-    features: ["5 projects", "10GB storage", "Email support"],
-    highlighted: false,
-  },
-  {
-    name: "Pro",
-    price: "$29",
-    period: "per month",
-    features: ["Unlimited projects", "100GB storage", "Priority support"],
-    highlighted: true,    // ← adds the "Most popular" badge
-  },
-];
-```
-
-**Change brand colors** — `tailwind.config.js`:
-
-```js
-theme: {
-  extend: {
-    colors: {
-      primary: "#6C63FF",     // main brand color
-      secondary: "#F5F3FF",   // light accent
-    }
-  }
-}
+```diff
++ HTML5     →  Semantic section-based structure
++ CSS3      →  Variables, Grid, Flexbox, @keyframes animations
++ Canvas    →  Real-time light cone & glow effects on hover
++ JavaScript →  Theme engine, custom cursor, particle system
 ```
 
 ---
 
-## 🌍 Deployment
+## ✦ Getting Started
 
-### Vercel (recommended)
+No installation. No build step. No dependencies.
 
+**1. Clone the repository**
 ```bash
-npm run build
-# Deploy /dist to Vercel
+git clone https://github.com/galatadesalegn/aurelis-luxury-landing-page-.git
+cd aurelis-luxury-landing-page-
 ```
 
-Or connect your GitHub repo to [Vercel](https://vercel.com) for automatic deploys on every push to `main`.
-
-### Netlify
-
+**2. Open in browser**
 ```bash
-npm run build
-# Drag and drop the /dist folder to Netlify Drop
-# Or connect your GitHub repo for auto-deploys
+# Simply open the file
+open aurelis-luxury-landing-page.html
+
+# Or with VS Code Live Server
+code .
 ```
+
+That's it. The entire experience runs from a single HTML file.
+
+---
+
+## ✦ Project Structure
+
+```
+aurelis-luxury-landing-page-/
+└── aurelis-luxury-landing-page.html    # The entire project — self-contained
+```
+
+---
+
+## ✦ Customization
+
+Since everything is in one file, customization is straightforward:
+
+| What to change | Where to find it |
+|---|---|
+| Brand name & copy | HTML section content |
+| Color palette | CSS `:root` variables at the top of `<style>` |
+| Dark / Light theme colors | `[data-theme="light"]` CSS block |
+| Product info & pricing | `.product` section in HTML |
+| Testimonials | `.testimonials` grid in HTML |
+| Particle density | `particleCount` in the `<script>` block |
+| Canvas light behavior | `drawLightCone()` function in `<script>` |
 
 ---
 
 ## 📄 License
 
-MIT — free to use, modify, and distribute. See [`LICENSE`](LICENSE).
+This project is licensed under the **MIT License**.
 
 ---
 
 <div align="center">
 
-Built by **Galata Desalegn** — Addis Ababa, Ethiopia
+![footer](https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=9&height=100&section=footer&animation=twinkling)
 
-⭐ Star this repo if you found it helpful!
+*Crafted with precision by [Galata Desalegn](https://www.galatadesalegn.me/)*
 
 </div>
