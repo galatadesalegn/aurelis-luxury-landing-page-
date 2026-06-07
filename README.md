@@ -13,7 +13,6 @@
 
 <br/>
 
-[![Live Demo](https://img.shields.io/badge/✦%20Live%20Demo-View%20Site-c9a96e?style=for-the-badge)](https://galatadesalegn.github.io/aurelis-luxury-landing-page-)
 [![Repo](https://img.shields.io/badge/GitHub-aurelis--luxury-181717?style=for-the-badge&logo=github)](https://github.com/galatadesalegn/aurelis-luxury-landing-page-.git)
 
 <br/>
